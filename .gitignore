@@ -2,3 +2,10 @@ SCCH
 Managed.dll
 SCCH.dSYM
 /dynamicLinker/
+
+.idea/
+
+# C#
+obj/
+bin/
+

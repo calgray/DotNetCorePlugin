@@ -38,16 +38,16 @@ int runFromEntryPoint(
     coreclr_initialize.init();
     coreclr_shutdown.init();
     coreclr_create_delegate.init();
-  } catch ( dynamicLinker::openException e ) {
+  } catch ( dynamicLinker::openException& e ) {
     std::cerr << "Cannot find " << coreClrDll << "Path that was searched: "
               << coreClrDllPath << std::endl;
     std::cerr << e.what() << std::endl;
     return -1;
-  } catch ( dynamicLinker::symbolException e ) {
+  } catch ( dynamicLinker::symbolException& e ) {
     std::cerr << "Probably your libcoreclr is broken or too old." << std::endl;
     std::cerr << e.what() << std::endl;
     return -1;
-  } catch ( dynamicLinker::dynamicLinkerException e ) {
+  } catch ( dynamicLinker::dynamicLinkerException& e ) {
     std::cerr << e.what() << std::endl;
     return -1;
   }
@@ -83,7 +83,7 @@ int runFromEntryPoint(
       &hostHandle,
       &domainId
     );
-  } catch ( dynamicLinker::dynamicLinkerException e ) {
+  } catch ( dynamicLinker::dynamicLinkerException& e ) {
     std::cerr << e.what() << std::endl;
     return -1;
   }
@@ -107,7 +107,7 @@ int runFromEntryPoint(
       entryPointName.c_str(),
       reinterpret_cast<void**>(&csharp_runIt)
     );
-  } catch ( dynamicLinker::dynamicLinkerException e ) {
+  } catch ( dynamicLinker::dynamicLinkerException& e ) {
     std::cerr << e.what() << std::endl;
     return -1;
   }
@@ -128,7 +128,7 @@ int runFromEntryPoint(
 
   try {
     status = coreclr_shutdown ( hostHandle, domainId );
-  } catch ( dynamicLinker::dynamicLinkerException e ) {
+  } catch ( dynamicLinker::dynamicLinkerException& e ) {
     std::cerr << e.what() << std::endl;
     return -1;
   }
@@ -148,7 +148,7 @@ int main( int argc, char* argv[] ) {
     return 0;
   }
 
-  std::string cwd = SCCH_fs::current_path();
+  std::string cwd = std::filesystem::current_path();
   cwd += "/";
 
   std::string assemblyName(argv[2]);

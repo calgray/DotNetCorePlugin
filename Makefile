@@ -3,22 +3,8 @@
 #  Licensed under the MIT license. See LICENSE file in the project root for full license information.
 #
 
-OS_NAME = $(shell uname -s)
-ifeq ($(OS_NAME), Darwin)
-  CXX = g++-6
-  ifeq (, $(shell which $(CPP)))
-    $(error "$(CPP) not found! You need to install gcc 6 via Homebrew to build this!")
-	endif
-else
-  CXX = g++
-endif
-
-SCCH_COREPATH = $(shell dirname $(shell which dnx))
-CXXFLAGS = -Wall -Wextra -Werror -std=c++14
-LDLIBS = -ldl -lstdc++fs
-CSHARP = mcs
-CSHARPFLAGS = -noconfig -nostdlib -unsafe
-CSHARPLIBS = -r:"$(SCCH_COREPATH)/mscorlib.dll" -r:"$(SCCH_COREPATH)/System.Runtime.dll" -r:"$(SCCH_COREPATH)/System.Console.dll"
+CXXFLAGS = -Wall -Wextra -Werror -std=c++17
+LDLIBS = -ldl -lcoreclr
 
 .PHONY: all clean
 
@@ -29,8 +15,9 @@ SCCH: simpleCoreCLRHost.cpp simpleCoreCLRHost.hpp utils.hpp Makefile
 	make -C dynamicLinker CXX=$(CXX)
 	$(CXX) $(CXXFLAGS) simpleCoreCLRHost.cpp -o SCCH -LdynamicLinker/ -ldynamicLinker $(LDLIBS)
 
-Managed.dll: Managed.cs Makefile
-	$(CSHARP) $(CSHARPFLAGS) -t:library -out:Managed.dll Managed.cs $(CSHARPLIBS)
+Managed.dll: Managed/Managed.cs Makefile
+	cd Managed && dotnet build
+	cp Managed/bin/Debug/netstandard2.0/Managed.dll .
 
 clean:
 	rm -rf SCCH SCCH.dSYM Managed.dll
