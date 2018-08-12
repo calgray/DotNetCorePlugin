@@ -93,9 +93,7 @@ int runFromEntryPoint(
     return -1;
   }
 
-  // Fancy modern C++ code. You can also just use void *.
-  auto no_del = []( auto x ) { (void)(x); };
-  auto csharp_runIt = std::unique_ptr<csharp_runIt_t, decltype(no_del)>(nullptr, no_del);
+  void* handle;
 
   try {
     // create delegate to our entry point
@@ -105,7 +103,7 @@ int runFromEntryPoint(
       assemblyName.c_str(),
       entryPointType.c_str(),
       entryPointName.c_str(),
-      reinterpret_cast<void**>(&csharp_runIt)
+      &handle
     );
   } catch ( dynamicLinker::dynamicLinkerException& e ) {
     std::cerr << e.what() << std::endl;
@@ -124,7 +122,7 @@ int runFromEntryPoint(
    *  If arguments are in in different order then second arg is 0 in C#.
    *  probably something with padding/offset/ptr byte size
    */
-  (*csharp_runIt)( tmp, std::mem_fun_ref(&myClass::print) );
+  reinterpret_cast< void(*)(myClass&, void (myClass::*)()) >(handle)(tmp, &myClass::print);
 
   try {
     status = coreclr_shutdown ( hostHandle, domainId );

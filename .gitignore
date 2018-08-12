@@ -1,7 +1,10 @@
-SCCH
+bin/
+SimpleCoreCLRHost
+SimpleCoreCLRHost.dSYM
 Managed.dll
-SCCH.dSYM
-/dynamicLinker/
+dynamicLinker/
+cmake-build-debug/
+build/
 
 .idea/
 

@@ -11,7 +11,7 @@
 
 #include <functional>
 #include <iostream>
-#include "dynamicLinker/dynamicLinker.hpp"
+#include <dynamicLinker.hpp>
 
 // getcwd on Linux
 #include <unistd.h>
@@ -38,5 +38,3 @@ public:
   void question() { value = 42; }
   void print() { std::cout << "Value: " <<  value << std::endl; }
 };
-
-typedef void (csharp_runIt_t)( myClass&, std::mem_fun_ref_t<void, myClass> );
