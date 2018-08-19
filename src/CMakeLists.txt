@@ -15,7 +15,7 @@ add_custom_command(
 add_custom_target(csharpDLL
         DEPENDS ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Managed.dll)
 
-add_executable(SimpleCoreCLRHost simpleCoreCLRHost.cpp)
+add_executable(SimpleCoreCLRHost simpleCoreCLRHost.cpp main.cpp coreclr.hpp filesystem_utils.hpp interop_class.hpp)
 add_dependencies(SimpleCoreCLRHost buildDependencies)
 add_dependencies(SimpleCoreCLRHost csharpDLL)
 

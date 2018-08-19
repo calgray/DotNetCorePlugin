@@ -4,15 +4,27 @@
  */
 
 #include "simpleCoreCLRHost.hpp"
-#include "utils.hpp"
+
+#include <dynamicLinker.hpp>
+
+#include "coreclr.hpp"
+#include "filesystem_utils.hpp"
+#include "interop_class.hpp"
+
+#include <climits>
+#ifndef PATH_MAX
+#   define PATH_MAX 4096
+#endif
+
+
 
 int runFromEntryPoint(
-            std::string currentExeAbsolutePath,
-            std::string clrFilesAbsolutePath,
-            std::string managedAssemblyAbsoluteDir,
-            std::string assemblyName,
-            std::string entryPointType,
-            std::string entryPointName)
+            const std::string& currentExeAbsolutePath,
+            const std::string& clrFilesAbsolutePath,
+            const std::string& managedAssemblyAbsoluteDir,
+            const std::string& assemblyName,
+            const std::string& entryPointType,
+            const std::string& entryPointName)
 {
 
   std::string coreClrDllPath = clrFilesAbsolutePath + "/" + coreClrDll;
@@ -68,9 +80,9 @@ int runFromEntryPoint(
       "UseLatestBehaviorWhenTFMNotSpecified"
   };
 
-  void* hostHandle = NULL;
+  void* hostHandle = nullptr;
   unsigned int domainId = 0;
-  int status = -1;
+  int status;
 
   // initialize coreclr
   try {
@@ -139,55 +151,3 @@ int runFromEntryPoint(
   return 0;
 }
 
-int main( int argc, char* argv[] ) {
-
-  if ( argc != 5 ) {
-    std::cout << "READ README.md !" << std::endl;
-    return 0;
-  }
-
-  std::string cwd = std::filesystem::current_path();
-  cwd += "/";
-
-  std::string assemblyName(argv[2]);
-  std::string assemblyDir(assemblyName);
-
-
-  if( !assemblyName.size() ) {
-    std::cerr << "ERROR: Bad ASSEMBLY_PATH !" << std::endl;
-    return 0;
-  }
-
-  size_t find = assemblyName.rfind('/');
-  if( find == std::string::npos )
-    find = 0;
-
-  assemblyName = assemblyName.substr( find+1, assemblyName.size() );
-
-  if( assemblyName.size() < 5 ||
-      assemblyName.substr( assemblyName.size()-4,
-                           assemblyName.size()) != ".dll" ) {
-    std::cerr << "ERROR: Assembly is not .dll !" << std::endl;
-    return 0;
-  }
-
-  assemblyName = assemblyName.substr( 0, assemblyName.size()-4 );
-
-  assemblyDir.erase(find);  // get dir of assembly
-  assemblyDir = cwd + assemblyDir;
-
-
-  int exitCode = runFromEntryPoint(
-                          std::string(argv[0]), // path to this exe
-                          std::string(argv[1]), // absolute path to coreCLR DLLs
-                          assemblyDir, // absolute path to DLL to run
-                          assemblyName,
-                          std::string(argv[3]),
-                          std::string(argv[4]));
-
-  if ( exitCode < 0 )
-    std::cout << "Exit Code: " << exitCode << std::endl;
-
-
-  return 0;
-}
