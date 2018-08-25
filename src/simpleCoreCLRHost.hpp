@@ -7,8 +7,8 @@
 
 #include <string>
 
-int runFromEntryPoint(
-        const std::string& currentExeAbsolutePath,
+void runFromEntryPoint(
+        const std::string& currentExePath,
         const std::string& clrFilesAbsolutePath,
         const std::string& managedAssemblyAbsoluteDir,
         const std::string& assemblyName,

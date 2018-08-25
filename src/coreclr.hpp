@@ -3,33 +3,32 @@
  *  Licensed under the MIT license. See LICENSE file in the project root for full license information.
  */
 
+#pragma once
 
-#if defined(__APPLE__)
-    constexpr char coreClrDll[] = "libcoreclr.dylib";
-#else
-    constexpr char coreClrDll[] = "libcoreclr.so";
-#endif
+#include <memory>
 
-// Prototype of the coreclr_initialize function from the libcoreclr.so
-typedef int (coreclrInitializeFunction)(
-        const char* exePath,
-        const char* appDomainFriendlyName,
-        int propertyCount,
-        const char** propertyKeys,
-        const char** propertyValues,
-        void** hostHandle,
-        unsigned int* domainId);
+namespace dynamicLinker
+{
+class dynamicLinker;
+}
 
-// Prototype of the coreclr_shutdown function from the libcoreclr.so
-typedef int (coreclrShutdownFunction)(
-        void* hostHandle,
-        unsigned int domainId);
+struct CoreclrHandle
+{
+    void* hostHandle{nullptr};
+    unsigned int domainId{0};
+};
 
-// Prototype of the coreclr_execute_assembly function from the libcoreclr.so
-typedef int (coreclrCreateDelegateFunction)(
-        void* hostHandle,
-        unsigned int domainId,
-        const char* entryPointAssemblyName,
-        const char* entryPointTypeName,
-        const char* entryPointMethodName,
-        void** delegate);
+class CoreCLR
+{
+private:
+    std::shared_ptr<dynamicLinker::dynamicLinker> dl;
+    CoreclrHandle coreclrHandle{};
+
+    void initializeCoreCLRDynamicLibrary(const std::string&);
+    void initializeCoreCLR(const std::string&, const std::string&, const std::string&);
+public:
+    explicit CoreCLR(const std::string&, const std::string&, const std::string&, const std::string&);
+    ~CoreCLR();
+
+    void* getCSharpFunctionPtr(const std::string&, const std::string&, const std::string&);
+};

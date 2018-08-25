@@ -54,17 +54,13 @@ int main( int argc, char* argv[] )
     assemblyDir = cwd + assemblyDir;
 
 
-    int exitCode = runFromEntryPoint(
+    runFromEntryPoint(
             std::string(argv[0]), // path to this exe
             std::string(argv[1]), // absolute path to coreCLR DLLs
             assemblyDir, // absolute path to DLL to run
             assemblyName,
             std::string(argv[3]),
             std::string(argv[4]));
-
-    if ( exitCode < 0 )
-        std::cout << "Exit Code: " << exitCode << std::endl;
-
 
     return 0;
 }
