@@ -1,9 +1,8 @@
+.vscode/
+
 bin/
-SimpleCoreCLRHost
-SimpleCoreCLRHost.dSYM
 Managed.dll
 dynamicLinker/
-cmake-build-debug/
 build/
 
 .idea/
