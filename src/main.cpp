@@ -3,19 +3,19 @@
  *  Licensed under the MIT license. See LICENSE file in the project root for full license information.
  */
 
-#if not defined (__unix__) && not defined(__unix) && not defined (unix) && ( (not defined (__APPLE__) || not defined (__MACH__)) )
+#if not defined (__unix__) && not defined(__unix) && not defined (unix) \
+&& ( (not defined (__APPLE__) || not defined (__MACH__)) )
     #error THIS SOFTWARE IS ONLY FOR UNIX-LIKE SYSTEMS!
 #endif
 
+
+#include "simpleCoreCLRHost.hpp"
 
 #include <iostream>
 #include <filesystem>
 #include <string>
 
-#include "simpleCoreCLRHost.hpp"
-
-
-int main( int argc, char* argv[] )
+int main(int argc, char* argv[])
 {
 
     if ( argc != 5 ) {

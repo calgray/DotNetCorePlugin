@@ -9,6 +9,13 @@ class myClass {
 private:
     int value;
 public:
-    void question() { value = 42; }
-    void print() { std::cout << "Value: " <<  value << std::endl; }
+    void question()
+    {
+        value = 42;
+    }
+
+    void print()
+    {
+        std::cout << "Value: " <<  value << std::endl;
+    }
 };
