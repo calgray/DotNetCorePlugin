@@ -6,10 +6,10 @@
 using System;
 using System.Runtime.InteropServices;
 
-public class Managed
+public class Trivial
 {
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-    unsafe delegate void myDelegate( IntPtr thisptr );
+    unsafe delegate void UnmanagedAction(IntPtr thisPtr);
 
     /// <summary>
     /// Runs parameterless unmanaged lambda
@@ -20,7 +20,10 @@ public class Managed
     {
         Console.WriteLine("Here's C# code:");
 
-        myDelegate fun = (myDelegate)Marshal.GetDelegateForFunctionPointer(memFun, typeof(myDelegate));
+        UnmanagedAction fun = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
+            memFun,
+            typeof(UnmanagedAction)
+        );
 
         // first argument of member functions in C++ is "this", but it's hidden from us :-)
         fun(thisPtr);

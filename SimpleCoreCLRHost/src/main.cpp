@@ -15,6 +15,17 @@
 #include <filesystem>
 #include <string>
 
+std::string get_assembly_folder(const char* path)
+{
+    return std::string(path);
+}
+
+std::string get_assembly_name(const char* path)
+{
+    
+    return std::string(path);
+}
+
 int main(int argc, char* argv[])
 {
     // Check Args
@@ -39,13 +50,15 @@ int main(int argc, char* argv[])
 
     size_t find = assemblyName.rfind('/');
     if( find == std::string::npos )
+    {
         find = 0;
+    }
 
     assemblyName = assemblyName.substr(find+1, assemblyName.size());
 
-    if( assemblyName.size() < 5 ||
+    if(assemblyName.size() < 5 ||
         assemblyName.substr( assemblyName.size()-4,
-                             assemblyName.size()) != ".dll" )
+                             assemblyName.size()) != ".dll")
     {
         std::cerr << "ERROR: Assembly is not .dll !" << std::endl;
         return 0;
@@ -56,20 +69,18 @@ int main(int argc, char* argv[])
     assemblyDir.erase(find);  // get dir of assembly
     assemblyDir = cwd + assemblyDir;
 
-    std::cout << "currentExePath: " << std::string(argv[0]) << "\n";
-    std::cout << "coreClrPath: " << std::string(argv[1]) << "\n";
-    std::cout << "assemblyDir: " << assemblyDir << "\n";
-    std::cout << "assemblyName: " << assemblyName << "\n";
-    std::cout << "entryPointType: " << std::string(argv[4]) << "\n";
-    std::cout << "entryPointNamecd : " << std::string(argv[5]) << "\n";
+    auto currentExePath = std::string(argv[0]);
+    auto coreClrPath = std::string(argv[1]);
+    auto entryPointType = std::string(argv[3]);
+    auto entryPointName = std::string(argv[4]);
 
     runFromEntryPoint(
-            std::string(argv[0]), // path to this exe
-            std::string(argv[1]), // absolute path to coreCLR DLLs
+            currentExePath, // path to this exe
+            coreClrPath, // absolute path to coreCLR DLLs
             assemblyDir, // absolute path to DLL to run
             assemblyName,
-            std::string(argv[3]),
-            std::string(argv[4]));
+            entryPointType,
+            entryPointName);
 
     return 0;
 }

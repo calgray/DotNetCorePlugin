@@ -30,7 +30,6 @@ void runFromEntryPoint(
             const std::string& entryPointType,
             const std::string& entryPointName)
 {
-
   std::string coreClrDllPath = clrFilesAbsolutePath + "/" + coreClrDll;
   if ( coreClrDllPath.size() >= PATH_MAX ) {
       std::cerr << "Path to libcoreclr.so too long!" << std::endl;
