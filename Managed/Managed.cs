@@ -11,6 +11,11 @@ public class Managed
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
     unsafe delegate void myDelegate( IntPtr thisptr );
 
+    /// <summary>
+    /// Runs parameterless unmanaged lambda
+    /// </summary>
+    /// <param name="thisPtr"></param>
+    /// <param name="memFun"></param>
     public static void runIt(IntPtr thisPtr, IntPtr memFun)
     {
         Console.WriteLine("Here's C# code:");
