@@ -91,7 +91,8 @@ void CoreCLR::initializeCoreCLR(const std::string& managedAssemblyAbsoluteDir,
             &coreclrHandle.domainId
     );
 
-    if ( status < 0 ) {
+    if (status < 0)
+    {
         std::cerr << "ERROR! coreclr_initialize status: 0x" << std::hex << status << std::endl;
     }
 }
@@ -107,7 +108,7 @@ void* CoreCLR::getCSharpFunctionPtr(
     coreclr_create_delegate.init();
 
     // create delegate to our entry point
-    int status = coreclr_create_delegate (
+    int status = coreclr_create_delegate(
             coreclrHandle.hostHandle,
             coreclrHandle.domainId,
             assemblyName.c_str(),
@@ -116,7 +117,8 @@ void* CoreCLR::getCSharpFunctionPtr(
             &handle
     );
 
-    if ( status < 0 ) {
+    if (status < 0)
+    {
         std::cerr << "ERROR! coreclr_create_delegate status: 0x" << std::hex << status << std::endl;
         return nullptr;
     }

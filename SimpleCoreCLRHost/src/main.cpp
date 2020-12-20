@@ -8,48 +8,27 @@
     #error THIS SOFTWARE IS ONLY FOR UNIX-LIKE SYSTEMS!
 #endif
 
-
 #include "simpleCoreCLRHost.hpp"
 
 #include <iostream>
 #include <filesystem>
 #include <string>
+#include <utility>
+#include <stdexcept>
 
-std::string get_assembly_folder(const char* path)
+std::pair<std::string, std::string> get_assembly(const char* path)
 {
-    return std::string(path);
-}
-
-std::string get_assembly_name(const char* path)
-{
-    
-    return std::string(path);
-}
-
-int main(int argc, char* argv[])
-{
-    // Check Args
-    if (argc != 5)
-    {
-        std::cout << "Usage : SimpleCoreCLRHost <dotNetPath> <assemblyName> <entryPointType> <entryPointMethod>" << std::endl;
-        return 0;
-    }
-
-    std::string cwd = std::filesystem::current_path();
-    cwd += "/";
-
-    std::string assemblyName(argv[2]);
-    std::string assemblyDir(assemblyName);
-
+    std::string assemblyName = path;
+    std::string assemblyDir = assemblyName;
 
     if(assemblyName.empty())
     {
         std::cerr << "ERROR: Bad ASSEMBLY_PATH !" << std::endl;
-        return 0;
+        throw std::invalid_argument("path");
     }
 
     size_t find = assemblyName.rfind('/');
-    if( find == std::string::npos )
+    if(find == std::string::npos)
     {
         find = 0;
     }
@@ -61,18 +40,62 @@ int main(int argc, char* argv[])
                              assemblyName.size()) != ".dll")
     {
         std::cerr << "ERROR: Assembly is not .dll !" << std::endl;
-        return 0;
+        throw std::invalid_argument("path");
     }
 
-    assemblyName = assemblyName.substr( 0, assemblyName.size()-4 );
+    assemblyName = assemblyName.substr(0, assemblyName.size()-4);
+
+    std::string cwd = std::filesystem::current_path();
+    cwd += "/";
 
     assemblyDir.erase(find);  // get dir of assembly
     assemblyDir = cwd + assemblyDir;
+
+    return std::make_pair(assemblyDir, assemblyName);
+}
+
+std::pair<std::string, std::string> get_assembly2(const char* path)
+{
+    auto assemblyPath = std::filesystem::path(path);
+    if(!std::filesystem::exists(assemblyPath))
+    {
+        throw std::invalid_argument("assemblyPath");
+    }
+    if(assemblyPath.extension().string() != ".dll")
+    {
+        throw std::invalid_argument("assemblyPath");
+    }
+
+    std::string assemblyName = assemblyPath.filename().replace_extension("").string();
+    std::string assemblyDir = std::filesystem::current_path() / assemblyPath.parent_path();
+
+    return std::make_pair(assemblyDir, assemblyName);
+}
+
+int main(int argc, char* argv[])
+{
+    // Check Args
+    if (argc != 5)
+    {
+        std::cout << "Usage : SimpleCoreCLRHost <dotNetPath> <assemblyName> <entryPointType> <entryPointMethod>" << std::endl;
+        return 0;
+    }
+
+    std::string assemblyName;
+    std::string assemblyDir;
+    std::tie(assemblyDir, assemblyName) = get_assembly2(argv[2]);
 
     auto currentExePath = std::string(argv[0]);
     auto coreClrPath = std::string(argv[1]);
     auto entryPointType = std::string(argv[3]);
     auto entryPointName = std::string(argv[4]);
+
+    std::cout << "currentExePath: " << currentExePath << "\n";
+    std::cout << "coreClrPath: " << coreClrPath << "\n";
+    std::cout << "assemblyDir: " << assemblyDir << "\n";
+    std::cout << "assemblyName: " << assemblyName << "\n";
+    std::cout << "entryPointType: " << entryPointType << "\n";
+    std::cout << "entryPointName : " << entryPointName << "\n";
 
     runFromEntryPoint(
             currentExePath, // path to this exe

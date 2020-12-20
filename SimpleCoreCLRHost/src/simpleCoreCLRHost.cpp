@@ -14,10 +14,13 @@
 #include "interop_class.hpp"
 #include "coreclr.hpp"
 
-
-#if defined(__APPLE__)
+#ifdef WIN32
+constexpr char coreClrDll[] = "libcoreclr.dll";
+#endif
+#ifdef __APPLE__
 constexpr char coreClrDll[] = "libcoreclr.dylib";
-#else
+#endif
+#ifdef __unix__
 constexpr char coreClrDll[] = "libcoreclr.so";
 #endif
 
@@ -31,9 +34,9 @@ void runFromEntryPoint(
             const std::string& entryPointName)
 {
   std::string coreClrDllPath = clrFilesAbsolutePath + "/" + coreClrDll;
-  if ( coreClrDllPath.size() >= PATH_MAX ) {
-      std::cerr << "Path to libcoreclr.so too long!" << std::endl;
-      return;
+  if(coreClrDllPath.size() >= PATH_MAX)
+  {
+      throw invalid_argument("Path to libcoreclr.so too long!");
   }
 
   CoreCLR clr(coreClrDllPath, managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
