@@ -98,20 +98,12 @@ int main(int argc, char* argv[])
     // std::cout << "entryPointType: " << entryPointType << "\n";
     // std::cout << "entryPointName : " << entryPointName << "\n";
 
-    // runFromEntryPoint(
-    //         currentExePath, // path to this exe
-    //         clrFilesAbsolutePath, // absolute path to coreCLR DLLs
-    //         managedAssemblyAbsoluteDir, // absolute path to DLL to run
-    //         assemblyName,
-    //         entryPointType,
-    //         entryPointName);
-
     auto clrHost = CoreCLRHost(
         currentExePath,
         clrFilesAbsolutePath,
         managedAssemblyAbsoluteDir);
 
-    clrHost.invokeDotNetCLR(assemblyName, entryPointType, entryPointName);
+    clrHost.invokeDotNetCLRMethodPtr(assemblyName, entryPointType, entryPointName);
 
     return 0;
 }

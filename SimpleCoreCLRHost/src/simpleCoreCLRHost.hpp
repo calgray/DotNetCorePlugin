@@ -29,6 +29,11 @@ public:
         const std::string& assemblyName,
         const std::string& entryPointType,
         const std::string& entryPointName);
+
+    void invokeDotNetCLRMethodPtr(
+        const std::string& assemblyName,
+        const std::string& entryPointType,
+        const std::string& entryPointName);
 };
 
 void runFromEntryPoint(

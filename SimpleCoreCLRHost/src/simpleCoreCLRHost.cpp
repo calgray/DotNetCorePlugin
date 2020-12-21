@@ -82,6 +82,20 @@ void CoreCLRHost::invokeDotNetCLR(
         return;
     }
 
+    reinterpret_cast<void(*)()>(handle)();
+}
+
+void CoreCLRHost::invokeDotNetCLRMethodPtr(
+    const std::string& assemblyName,
+    const std::string& entryPointType,
+    const std::string& entryPointName)
+{
+    void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
+    if(!handle)
+    {
+        return;
+    }
+
     myClass tmp = myClass();
     tmp.question();
 
