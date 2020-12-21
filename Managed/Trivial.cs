@@ -5,9 +5,27 @@
 
 using System;
 using System.Runtime.InteropServices;
+using Gtk;
 
 public class Trivial
 {
+    public static void HelloWorld()
+    {
+        System.Console.WriteLine("Hello World from C#");
+    }
+
+    public static void HelloGtk()
+    {
+        Gtk.Application.Init();
+        Gtk.Window window = new Gtk.Window("helloworld");
+        window.DeleteEvent += (sender, args) => { 
+            Application.Quit();
+        }; 
+        window.Show();
+        Gtk.Application.Run();
+        window.Close();
+    }
+
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
     unsafe delegate void UnmanagedAction(IntPtr thisPtr);
 

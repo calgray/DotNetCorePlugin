@@ -103,7 +103,10 @@ int main(int argc, char* argv[])
         clrFilesAbsolutePath,
         managedAssemblyAbsoluteDir);
 
-    clrHost.invokeDotNetCLRMethodPtr(assemblyName, entryPointType, entryPointName);
+    clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloWorld");
+    clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
+
+    //clrHost.invokeDotNetCLRMethodPtr(assemblyName, entryPointType, entryPointName);
 
     return 0;
 }

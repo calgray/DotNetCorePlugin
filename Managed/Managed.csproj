@@ -10,6 +10,8 @@
   <ItemGroup>
     <!-- <PackageReference Include="System.Threading" Version="4.0.0" /> -->
     <PackageReference Include="GtkSharp" Version="3.22.25.128" />
+    <PackageReference Include="OpenTK.NetStandard" Version="1.0.5.32" />
+    <PackageReference Include="SharpDX.Mathematics" Version="4.2.0" />
   </ItemGroup>
 
 </Project>
