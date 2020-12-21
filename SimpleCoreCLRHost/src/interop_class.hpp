@@ -16,6 +16,11 @@ public:
         value = 42;
     }
 
+    void set(int v)
+    {
+        value = v;
+    }
+
     void print()
     {
         std::cout << "Value: " <<  value << std::endl;

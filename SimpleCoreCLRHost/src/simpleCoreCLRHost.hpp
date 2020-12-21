@@ -31,24 +31,39 @@ public:
         const std::string& entryPointType,
         const std::string& entryPointName);
 
-    void invokeDotNetCLRMethodPtr(
+    void invokeDotNetCLRCallback(
         const std::string& assemblyName,
         const std::string& entryPointType,
         const std::string& entryPointName,
         interop_class& tmp);
 
-    template<typename T, typename Method> // lambda = void(T::*)()
-    void invokeDotNetCLRMethodPtr(
+    template<typename T>
+    void invokeDotNetCLRCallback(
         const std::string& assemblyName,
         const std::string& entryPointType,
         const std::string& entryPointName,
         T& instance,
-        Method method)
+        void(T::*method)())
     {
         void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
         if(handle)
         {   
             reinterpret_cast<void(*)(T&, void(T::*)())>(handle)(instance, method);
+        }
+    }
+
+    template<typename T, typename Arg0>
+    void invokeDotNetCLRCallback(
+        const std::string& assemblyName,
+        const std::string& entryPointType,
+        const std::string& entryPointName,
+        T& instance,
+        void(T::*method)(Arg0))
+    {
+        void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
+        if(handle)
+        {   
+            reinterpret_cast<void(*)(T&, void(T::*)(Arg0))>(handle)(instance, method);
         }
     }
 };

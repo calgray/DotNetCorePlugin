@@ -47,18 +47,14 @@ int main(int /*argc*/, char* argv[])
 
     clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloWorld");
 
-    //clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
-    
-
-    // clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
-
     
     interop_class tmp = interop_class();
     tmp.question();
-    clrHost.invokeDotNetCLRMethodPtr(assemblyName, entryPointType, "runIt", tmp);
+    clrHost.invokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethod", tmp);
+    clrHost.invokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethodInt", tmp, &interop_class::set);
+    clrHost.invokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethod", tmp, &interop_class::print);
 
-    clrHost.invokeDotNetCLRMethodPtr<interop_class, decltype(&interop_class::print)>(
-        assemblyName, entryPointType, "runIt", tmp, &interop_class::print);
-
+    clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
+    
     return 0;
 }

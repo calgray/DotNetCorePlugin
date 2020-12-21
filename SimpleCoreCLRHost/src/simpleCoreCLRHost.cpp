@@ -83,7 +83,7 @@ void CoreCLRHost::invokeDotNetCLR(
     }
 }
 
-void CoreCLRHost::invokeDotNetCLRMethodPtr(
+void CoreCLRHost::invokeDotNetCLRCallback(
     const std::string& assemblyName,
     const std::string& entryPointType,
     const std::string& entryPointName,

@@ -29,22 +29,30 @@ public class Trivial
 
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
     unsafe delegate void UnmanagedAction(IntPtr thisPtr);
-
-    /// <summary>
-    /// Runs parameterless unmanaged lambda
-    /// </summary>
-    /// <param name="thisPtr"></param>
-    /// <param name="memFun"></param>
-    public static void runIt(IntPtr thisPtr, IntPtr memFun)
+    public static void runActionMethod(IntPtr thisPtr, IntPtr methodPtr)
     {
         Console.WriteLine("Here's C# code:");
 
-        UnmanagedAction fun = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
-            memFun,
+        UnmanagedAction method = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
+            methodPtr,
             typeof(UnmanagedAction)
         );
 
         // first argument of member functions in C++ is "this", but it's hidden from us :-)
-        fun(thisPtr);
+        method(thisPtr);
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+    unsafe delegate void UnmanagedActionInt(IntPtr thisPtr, int arg);
+    public static void runActionMethodInt(IntPtr thisPtr, IntPtr methodPtr)
+    {
+        Console.WriteLine("Here's C# code:");
+
+        UnmanagedActionInt method = (UnmanagedActionInt)Marshal.GetDelegateForFunctionPointer(
+            methodPtr,
+            typeof(UnmanagedActionInt)
+        );
+
+        method(thisPtr, 4);
     }
 }
