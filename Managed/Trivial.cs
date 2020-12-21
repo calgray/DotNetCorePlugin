@@ -17,7 +17,7 @@ public class Trivial
     public static void HelloGtk()
     {
         Gtk.Application.Init();
-        Gtk.Window window = new Gtk.Window("Hello World 2");
+        Gtk.Window window = new Gtk.Window("Hello World");
         window.DeleteEvent += (sender, args) => { 
             Application.Quit();
         }; 
