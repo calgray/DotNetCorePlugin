@@ -12,6 +12,7 @@ public class Trivial
     public static void HelloWorld()
     {
         System.Console.WriteLine("Hello World from C#");
+        // System.Console.WriteLine(new SharpDX.Vector3(1,2,3).ToString());
     }
 
     public static void HelloGtk()

@@ -47,14 +47,14 @@ void runFromEntryPoint(
         return;
     }
 
-    myClass tmp = myClass();
+    interop_class tmp = interop_class();
     tmp.question();
 
     /*
     *  If arguments are in in different order then second arg is 0 in C#.
     *  probably something with padding/offset/ptr byte size
     */
-    reinterpret_cast<void(*)(myClass&, void (myClass::*)())>(handle)(tmp, &myClass::print);
+    reinterpret_cast<void(*)(interop_class&, void (interop_class::*)())>(handle)(tmp, &interop_class::print);
 }
 
 CoreCLRHost::CoreCLRHost(
@@ -77,31 +77,25 @@ void CoreCLRHost::invokeDotNetCLR(
     const std::string& entryPointName)
 {
     void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
-    if(!handle)
+    if(handle)
     {
-        return;
+        reinterpret_cast<void(*)()>(handle)();
     }
-
-    reinterpret_cast<void(*)()>(handle)();
 }
 
 void CoreCLRHost::invokeDotNetCLRMethodPtr(
     const std::string& assemblyName,
     const std::string& entryPointType,
-    const std::string& entryPointName)
+    const std::string& entryPointName,
+    interop_class& tmp)
 {
     void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
-    if(!handle)
-    {
-        return;
+    if(handle)
+    {   
+        /*
+        *  If arguments are in in different order then second arg is 0 in C#.
+        *  probably something with padding/offset/ptr byte size
+        */
+        reinterpret_cast<void(*)(interop_class&, void (interop_class::*)())>(handle)(tmp, &interop_class::print);
     }
-
-    myClass tmp = myClass();
-    tmp.question();
-
-    /*
-    *  If arguments are in in different order then second arg is 0 in C#.
-    *  probably something with padding/offset/ptr byte size
-    */
-    reinterpret_cast<void(*)(myClass&, void (myClass::*)())>(handle)(tmp, &myClass::print);
 }

@@ -16,87 +16,29 @@
 #include <string>
 #include <utility>
 #include <stdexcept>
+#include <thread>
 
-std::pair<std::string, std::string> get_assembly(const char* path)
+int main(int /*argc*/, char* argv[])
 {
-    std::string assemblyName = path;
-    std::string assemblyDir = assemblyName;
+    auto currentExePath = std::string(argv[0]);
+    auto currentExeDir = std::filesystem::path(currentExePath).parent_path();
 
-    if(assemblyName.empty())
-    {
-        std::cerr << "ERROR: Bad ASSEMBLY_PATH !" << std::endl;
-        throw std::invalid_argument("path");
-    }
-
-    size_t find = assemblyName.rfind('/');
-    if(find == std::string::npos)
-    {
-        find = 0;
-    }
-
-    assemblyName = assemblyName.substr(find+1, assemblyName.size());
-
-    if(assemblyName.size() < 5 ||
-        assemblyName.substr( assemblyName.size()-4,
-                             assemblyName.size()) != ".dll")
-    {
-        std::cerr << "ERROR: Assembly is not .dll !" << std::endl;
-        throw std::invalid_argument("path");
-    }
-
-    assemblyName = assemblyName.substr(0, assemblyName.size()-4);
-
-    std::string cwd = std::filesystem::current_path();
-    cwd += "/";
-
-    assemblyDir.erase(find);  // get dir of assembly
-    assemblyDir = cwd + assemblyDir;
-
-    return std::make_pair(assemblyDir, assemblyName);
-}
-
-std::pair<std::string, std::string> get_assembly2(const char* path)
-{
-    auto assemblyPath = std::filesystem::path(path);
+    std::string assemblyName = "Managed";
+    std::filesystem::path managedAssemblyAbsoluteDir = std::filesystem::current_path() / currentExeDir;
+    std::filesystem::path assemblyPath = managedAssemblyAbsoluteDir / (assemblyName + ".dll");
     if(!std::filesystem::exists(assemblyPath))
     {
-        throw std::invalid_argument("assemblyPath");
+        throw std::runtime_error("assemblyPath does not exist");
     }
-    if(assemblyPath.extension().string() != ".dll")
+
+
+    auto clrFilesAbsolutePath = "/usr/share/dotnet/shared/Microsoft.NETCore.App/5.0.1";
+    if(!std::filesystem::exists(clrFilesAbsolutePath))
     {
-        throw std::invalid_argument("assemblyPath");
+        throw std::runtime_error("clr not installed at specified path");
     }
 
-    std::string assemblyName = assemblyPath.filename().replace_extension("").string();
-    std::string assemblyDir = std::filesystem::current_path() / assemblyPath.parent_path();
-
-    return std::make_pair(assemblyDir, assemblyName);
-}
-
-int main(int argc, char* argv[])
-{
-    // Check Args
-    if (argc != 5)
-    {
-        std::cout << "Usage : SimpleCoreCLRHost <dotNetPath> <assemblyName> <entryPointType> <entryPointMethod>" << std::endl;
-        return 0;
-    }
-
-    std::string assemblyName;
-    std::string managedAssemblyAbsoluteDir;
-    std::tie(managedAssemblyAbsoluteDir, assemblyName) = get_assembly2(argv[2]);
-
-    auto currentExePath = std::string(argv[0]);
-    auto clrFilesAbsolutePath = std::string(argv[1]);
-    auto entryPointType = std::string(argv[3]);
-    auto entryPointName = std::string(argv[4]);
-
-    // std::cout << "currentExePath: " << currentExePath << "\n";
-    // std::cout << "clrFilesAbsolutePath: " << clrFilesAbsolutePath << "\n";
-    // std::cout << "managedAssemblyAbsoluteDir: " << managedAssemblyAbsoluteDir << "\n";
-    // std::cout << "assemblyName: " << assemblyName << "\n";
-    // std::cout << "entryPointType: " << entryPointType << "\n";
-    // std::cout << "entryPointName : " << entryPointName << "\n";
+    auto entryPointType = "Trivial";
 
     auto clrHost = CoreCLRHost(
         currentExePath,
@@ -104,9 +46,19 @@ int main(int argc, char* argv[])
         managedAssemblyAbsoluteDir);
 
     clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloWorld");
-    clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
 
-    //clrHost.invokeDotNetCLRMethodPtr(assemblyName, entryPointType, entryPointName);
+    //clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
+    
+
+    // clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
+
+    
+    interop_class tmp = interop_class();
+    tmp.question();
+    clrHost.invokeDotNetCLRMethodPtr(assemblyName, entryPointType, "runIt", tmp);
+
+    clrHost.invokeDotNetCLRMethodPtr<interop_class, decltype(&interop_class::print)>(
+        assemblyName, entryPointType, "runIt", tmp, &interop_class::print);
 
     return 0;
 }

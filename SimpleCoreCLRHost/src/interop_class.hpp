@@ -3,11 +3,13 @@
  *  Licensed under the MIT license. See LICENSE file in the project root for full license information.
  */
 
+#pragma once
+
 #include <iostream>
 
-class myClass {
+class interop_class {
 private:
-    int value;
+    int value = 1;
 public:
     void question()
     {
