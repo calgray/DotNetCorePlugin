@@ -36,7 +36,7 @@ void runFromEntryPoint(
   std::string coreClrDllPath = clrFilesAbsolutePath + "/" + coreClrDll;
   if(coreClrDllPath.size() >= PATH_MAX)
   {
-      throw invalid_argument("Path to libcoreclr.so too long!");
+      throw std::invalid_argument("Path to libcoreclr.so too long!");
   }
 
   CoreCLR clr(coreClrDllPath, managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
