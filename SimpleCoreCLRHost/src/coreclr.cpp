@@ -17,6 +17,11 @@ CoreCLR::CoreCLR(const std::string& coreCLRPath,
 {
     //CoreCLR(clrFilesAbsolutePath + "/" + coreClrDll, ...);
 
+    std::cout << "coreCLRPath: " << coreCLRPath << std::endl;
+    std::cout << "managedAssemblyAbsoluteDir: " << managedAssemblyAbsoluteDir << std::endl;
+    std::cout << "clrFilesAbsolutePath: " << clrFilesAbsolutePath << std::endl;
+    std::cout << "currentExePath: " << currentExePath << std::endl;
+
     initializeCoreCLRDynamicLibrary(coreCLRPath);
     initializeCoreCLR(managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
 }

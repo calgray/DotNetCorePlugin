@@ -9,6 +9,7 @@
 #endif
 
 #include "simpleCoreCLRHost.hpp"
+//#include "coreclr.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -82,28 +83,35 @@ int main(int argc, char* argv[])
     }
 
     std::string assemblyName;
-    std::string assemblyDir;
-    std::tie(assemblyDir, assemblyName) = get_assembly2(argv[2]);
+    std::string managedAssemblyAbsoluteDir;
+    std::tie(managedAssemblyAbsoluteDir, assemblyName) = get_assembly2(argv[2]);
 
     auto currentExePath = std::string(argv[0]);
-    auto coreClrPath = std::string(argv[1]);
+    auto clrFilesAbsolutePath = std::string(argv[1]);
     auto entryPointType = std::string(argv[3]);
     auto entryPointName = std::string(argv[4]);
 
-    std::cout << "currentExePath: " << currentExePath << "\n";
-    std::cout << "coreClrPath: " << coreClrPath << "\n";
-    std::cout << "assemblyDir: " << assemblyDir << "\n";
-    std::cout << "assemblyName: " << assemblyName << "\n";
-    std::cout << "entryPointType: " << entryPointType << "\n";
-    std::cout << "entryPointName : " << entryPointName << "\n";
+    // std::cout << "currentExePath: " << currentExePath << "\n";
+    // std::cout << "clrFilesAbsolutePath: " << clrFilesAbsolutePath << "\n";
+    // std::cout << "managedAssemblyAbsoluteDir: " << managedAssemblyAbsoluteDir << "\n";
+    // std::cout << "assemblyName: " << assemblyName << "\n";
+    // std::cout << "entryPointType: " << entryPointType << "\n";
+    // std::cout << "entryPointName : " << entryPointName << "\n";
 
-    runFromEntryPoint(
-            currentExePath, // path to this exe
-            coreClrPath, // absolute path to coreCLR DLLs
-            assemblyDir, // absolute path to DLL to run
-            assemblyName,
-            entryPointType,
-            entryPointName);
+    // runFromEntryPoint(
+    //         currentExePath, // path to this exe
+    //         clrFilesAbsolutePath, // absolute path to coreCLR DLLs
+    //         managedAssemblyAbsoluteDir, // absolute path to DLL to run
+    //         assemblyName,
+    //         entryPointType,
+    //         entryPointName);
+
+    auto clrHost = CoreCLRHost(
+        currentExePath,
+        clrFilesAbsolutePath,
+        managedAssemblyAbsoluteDir);
+
+    clrHost.invokeDotNetCLR(assemblyName, entryPointType, entryPointName);
 
     return 0;
 }

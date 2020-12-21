@@ -3,6 +3,13 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <!-- <UseWpf>true</UseWpf> -->
+    <!-- <UseWindowsForms>true</UseWindowsForms> -->
   </PropertyGroup>
+
+  <ItemGroup>
+    <!-- <PackageReference Include="System.Threading" Version="4.0.0" /> -->
+    <PackageReference Include="GtkSharp" Version="3.22.25.128" />
+  </ItemGroup>
 
 </Project>

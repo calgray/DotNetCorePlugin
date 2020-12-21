@@ -4,15 +4,16 @@
  */
 
 #include "simpleCoreCLRHost.hpp"
+#include "interop_class.hpp"
+#include "coreclr.hpp"
 
 #include <dynamicLinker.hpp>
 #include <climits>
-#ifndef PATH_MAX
-#   define PATH_MAX 4096
-#endif
+#include <stdexcept>
 
-#include "interop_class.hpp"
-#include "coreclr.hpp"
+#ifndef PATH_MAX
+#define PATH_MAX 4096
+#endif
 
 #ifdef WIN32
 constexpr char coreClrDll[] = "libcoreclr.dll";
@@ -24,35 +25,69 @@ constexpr char coreClrDll[] = "libcoreclr.dylib";
 constexpr char coreClrDll[] = "libcoreclr.so";
 #endif
 
-
 void runFromEntryPoint(
-            const std::string& currentExePath,
-            const std::string& clrFilesAbsolutePath,
-            const std::string& managedAssemblyAbsoluteDir,
-            const std::string& assemblyName,
-            const std::string& entryPointType,
-            const std::string& entryPointName)
+    const std::string& currentExePath,
+    const std::string& clrFilesAbsolutePath,
+    const std::string& managedAssemblyAbsoluteDir,
+    const std::string& assemblyName,
+    const std::string& entryPointType,
+    const std::string& entryPointName)
 {
-  std::string coreClrDllPath = clrFilesAbsolutePath + "/" + coreClrDll;
-  if(coreClrDllPath.size() >= PATH_MAX)
-  {
-      throw std::invalid_argument("Path to libcoreclr.so too long!");
-  }
+    std::string coreClrDllPath = clrFilesAbsolutePath + "/" + coreClrDll;
+    if(coreClrDllPath.size() >= PATH_MAX)
+    {
+        throw std::invalid_argument("Path to libcoreclr.dll too long!");
+    }
 
-  CoreCLR clr(coreClrDllPath, managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
+    CoreCLR clr(coreClrDllPath, managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
 
-  void* handle = clr.getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
-  if(!handle)
-  {
-    return;
-  }
+    void* handle = clr.getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
+    if(!handle)
+    {
+        return;
+    }
 
-  myClass tmp = myClass();
-  tmp.question();
+    myClass tmp = myClass();
+    tmp.question();
 
-  /*
-   *  If arguments are in in different order then second arg is 0 in C#.
-   *  probably something with padding/offset/ptr byte size
-   */
-  reinterpret_cast< void(*)(myClass&, void (myClass::*)()) >(handle)(tmp, &myClass::print);
+    /*
+    *  If arguments are in in different order then second arg is 0 in C#.
+    *  probably something with padding/offset/ptr byte size
+    */
+    reinterpret_cast<void(*)(myClass&, void (myClass::*)())>(handle)(tmp, &myClass::print);
+}
+
+CoreCLRHost::CoreCLRHost(
+    const std::string& currentExePath,
+    const std::string& clrFilesAbsolutePath,
+    const std::string& managedAssemblyAbsoluteDir)
+    {
+        std::string coreClrDllPath = clrFilesAbsolutePath + "/" + coreClrDll;
+        if(coreClrDllPath.size() >= PATH_MAX)
+        {
+            throw std::invalid_argument("Path to libcoreclr.dll too long!");
+        }
+
+        m_clr = std::make_unique<CoreCLR>(coreClrDllPath, managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
+    }
+
+void CoreCLRHost::invokeDotNetCLR(
+    const std::string& assemblyName,
+    const std::string& entryPointType,
+    const std::string& entryPointName)
+{
+    void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
+    if(!handle)
+    {
+        return;
+    }
+
+    myClass tmp = myClass();
+    tmp.question();
+
+    /*
+    *  If arguments are in in different order then second arg is 0 in C#.
+    *  probably something with padding/offset/ptr byte size
+    */
+    reinterpret_cast<void(*)(myClass&, void (myClass::*)())>(handle)(tmp, &myClass::print);
 }
