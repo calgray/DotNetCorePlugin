@@ -27,18 +27,16 @@ public class Trivial
         window.Close();
     }
 
+    //TODO: function
+
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
     unsafe delegate void UnmanagedAction(IntPtr thisPtr);
     public static void runActionMethod(IntPtr thisPtr, IntPtr methodPtr)
     {
-        Console.WriteLine("Here's C# code:");
-
         UnmanagedAction method = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
             methodPtr,
             typeof(UnmanagedAction)
         );
-
-        // first argument of member functions in C++ is "this", but it's hidden from us :-)
         method(thisPtr);
     }
 
@@ -46,13 +44,21 @@ public class Trivial
     unsafe delegate void UnmanagedActionInt(IntPtr thisPtr, int arg);
     public static void runActionMethodInt(IntPtr thisPtr, IntPtr methodPtr)
     {
-        Console.WriteLine("Here's C# code:");
-
         UnmanagedActionInt method = (UnmanagedActionInt)Marshal.GetDelegateForFunctionPointer(
             methodPtr,
             typeof(UnmanagedActionInt)
         );
-
         method(thisPtr, 4);
+    }
+
+    [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
+    unsafe delegate void UnmanagedActionIntInt(IntPtr thisPtr, int arg0, int arg1);
+    public static void runActionMethodIntInt(IntPtr thisPtr, IntPtr methodPtr)
+    {
+        UnmanagedActionIntInt method = (UnmanagedActionIntInt)Marshal.GetDelegateForFunctionPointer(
+            methodPtr,
+            typeof(UnmanagedActionIntInt)
+        );
+        method(thisPtr, 4, 4);
     }
 }

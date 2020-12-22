@@ -52,18 +52,18 @@ public:
         }
     }
 
-    template<typename T, typename Arg0>
+    template<typename T, typename ...Arg>
     void invokeDotNetCLRCallback(
         const std::string& assemblyName,
         const std::string& entryPointType,
         const std::string& entryPointName,
         T& instance,
-        void(T::*method)(Arg0))
+        void(T::*method)(Arg...))
     {
         void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
         if(handle)
         {   
-            reinterpret_cast<void(*)(T&, void(T::*)(Arg0))>(handle)(instance, method);
+            reinterpret_cast<void(*)(T&, void(T::*)(Arg...))>(handle)(instance, method);
         }
     }
 };

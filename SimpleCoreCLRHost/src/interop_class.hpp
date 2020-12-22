@@ -21,6 +21,11 @@ public:
         value = v;
     }
 
+    void set_sum(int a, int b)
+    {
+        value = a + b;
+    }
+
     void print()
     {
         std::cout << "Value: " <<  value << std::endl;

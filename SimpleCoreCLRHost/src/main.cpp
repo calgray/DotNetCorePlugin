@@ -50,11 +50,12 @@ int main(int /*argc*/, char* argv[])
     
     interop_class tmp = interop_class();
     tmp.question();
-    clrHost.invokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethod", tmp);
+    clrHost.invokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethod", tmp, &interop_class::print);
     clrHost.invokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethodInt", tmp, &interop_class::set);
+    clrHost.invokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethodIntInt", tmp, &interop_class::set_sum);
     clrHost.invokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethod", tmp, &interop_class::print);
 
-    clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
+    //clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
     
     return 0;
 }

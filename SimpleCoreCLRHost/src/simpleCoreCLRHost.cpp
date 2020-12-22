@@ -82,20 +82,3 @@ void CoreCLRHost::invokeDotNetCLR(
         reinterpret_cast<void(*)()>(handle)();
     }
 }
-
-void CoreCLRHost::invokeDotNetCLRCallback(
-    const std::string& assemblyName,
-    const std::string& entryPointType,
-    const std::string& entryPointName,
-    interop_class& tmp)
-{
-    void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
-    if(handle)
-    {   
-        /*
-        *  If arguments are in in different order then second arg is 0 in C#.
-        *  probably something with padding/offset/ptr byte size
-        */
-        reinterpret_cast<void(*)(interop_class&, void (interop_class::*)())>(handle)(tmp, &interop_class::print);
-    }
-}
