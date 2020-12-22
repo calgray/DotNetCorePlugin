@@ -1,4 +1,4 @@
-# simpleCoreCLRHost
+# DotNetCorePluginHost
 
 Disclaimer: This is only [PoC](https://en.wikipedia.org/wiki/Proof_of_concept), do not copy-paste this code into production.
 
