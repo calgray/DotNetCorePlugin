@@ -17,6 +17,11 @@ CoreCLR::CoreCLR(const std::string& coreCLRPath,
 {
     //CoreCLR(clrFilesAbsolutePath + "/" + coreClrDll, ...);
 
+    std::cout << "coreCLRPath: " << coreCLRPath << std::endl;
+    std::cout << "managedAssemblyAbsoluteDir: " << managedAssemblyAbsoluteDir << std::endl;
+    std::cout << "clrFilesAbsolutePath: " << clrFilesAbsolutePath << std::endl;
+    std::cout << "currentExePath: " << currentExePath << std::endl;
+
     initializeCoreCLRDynamicLibrary(coreCLRPath);
     initializeCoreCLR(managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
 }
@@ -91,7 +96,8 @@ void CoreCLR::initializeCoreCLR(const std::string& managedAssemblyAbsoluteDir,
             &coreclrHandle.domainId
     );
 
-    if ( status < 0 ) {
+    if (status < 0)
+    {
         std::cerr << "ERROR! coreclr_initialize status: 0x" << std::hex << status << std::endl;
     }
 }
@@ -107,7 +113,7 @@ void* CoreCLR::getCSharpFunctionPtr(
     coreclr_create_delegate.init();
 
     // create delegate to our entry point
-    int status = coreclr_create_delegate (
+    int status = coreclr_create_delegate(
             coreclrHandle.hostHandle,
             coreclrHandle.domainId,
             assemblyName.c_str(),
@@ -116,7 +122,8 @@ void* CoreCLR::getCSharpFunctionPtr(
             &handle
     );
 
-    if ( status < 0 ) {
+    if (status < 0)
+    {
         std::cerr << "ERROR! coreclr_create_delegate status: 0x" << std::hex << status << std::endl;
         return nullptr;
     }
