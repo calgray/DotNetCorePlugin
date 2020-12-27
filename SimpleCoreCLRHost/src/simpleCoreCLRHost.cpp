@@ -25,7 +25,7 @@ constexpr char coreClrDll[] = "libcoreclr.dylib";
 constexpr char coreClrDll[] = "libcoreclr.so";
 #endif
 
-void runFromEntryPoint(
+void RunFromEntryPoint(
     const std::string& currentExePath,
     const std::string& clrFilesAbsolutePath,
     const std::string& managedAssemblyAbsoluteDir,
@@ -71,7 +71,7 @@ CoreCLRHost::CoreCLRHost(
         m_clr = std::make_unique<CoreCLR>(coreClrDllPath, managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
     }
 
-void CoreCLRHost::invokeDotNetCLR(
+void CoreCLRHost::InvokeDotNetCLR(
     const std::string& assemblyName,
     const std::string& entryPointType,
     const std::string& entryPointName)

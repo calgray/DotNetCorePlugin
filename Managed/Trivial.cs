@@ -17,6 +17,16 @@ namespace Managed
             // System.Console.WriteLine(new SharpDX.Vector3(1,2,3).ToString());
         }
 
+        public static double GetPi()
+        {
+            return Math.PI;
+        }
+
+        public static string GetVersion()
+        {
+            return "v1.2.3";
+        }
+
         public static void HelloGtk()
         {
             Gtk.Application.Init();

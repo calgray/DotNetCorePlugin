@@ -31,5 +31,16 @@ namespace Managed
         }
     }
 
-    public class Plugin1Singleton : Singleton<Plugin1> { }
+    public class Plugin1Singleton : Singleton<Plugin1>
+    {
+        public static void RunInstance()
+        {
+            Instance.Update();
+        }
+
+        public static void Dispose()
+        {
+            Instance.Dispose();
+        }
+    }
 }

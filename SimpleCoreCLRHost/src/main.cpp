@@ -38,24 +38,53 @@ int main(int /*argc*/, char* argv[])
         throw std::runtime_error("clr not installed at specified path");
     }
 
-    auto entryPointType = "Trivial";
 
     auto clrHost = CoreCLRHost(
         currentExePath,
         clrFilesAbsolutePath,
         managedAssemblyAbsoluteDir);
 
-    clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloWorld");
+    auto entryPointType = "Managed.Trivial";
 
-    
-    interop_class tmp = interop_class();
-    tmp.question();
-    clrHost.invokeDotNetCLRCallback(assemblyName, "Trivial", "runActionMethod", tmp, &interop_class::print);
-    clrHost.invokeDotNetCLRCallback(assemblyName, "Trivial", "runActionMethodInt", tmp, &interop_class::set);
-    clrHost.invokeDotNetCLRCallback(assemblyName, "Trivial", "runActionMethodIntInt", tmp, &interop_class::set_sum);
-    clrHost.invokeDotNetCLRCallback(assemblyName, "Trivial", "runActionMethod", tmp, &interop_class::print);
+    // C# Action
+    clrHost.InvokeDotNetCLR(assemblyName, entryPointType, "HelloWorld");
 
-    //clrHost.invokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
+    // C++ callback
+
+    bool delegateCallback = false;
+    if (delegateCallback)
+    {
+        interop_class tmp = interop_class();
+        tmp.question();
+        clrHost.InvokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethod", tmp, &interop_class::print);
+        clrHost.InvokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethodInt", tmp, &interop_class::set);
+        clrHost.InvokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethodIntInt", tmp, &interop_class::set_sum);
+        clrHost.InvokeDotNetCLRCallback(assemblyName, entryPointType, "runActionMethod", tmp, &interop_class::print);
+    }
+
+    // C# Func
+    bool func = true;
+    if(func)
+    {
+        std::cout << "got pi: "
+        << clrHost.InvokeDotNetCLRFunc<double>(assemblyName, entryPointType, "GetPi")
+        << std::endl;
+
+        std::cout << "got version: "
+        << clrHost.InvokeDotNetCLRFunc<char*>(assemblyName, entryPointType, "GetVersion")
+        << std::endl;
+    }
+
+
+    // C# singleton
+    bool singleton = false;
+    if (singleton)
+    {
+        clrHost.InvokeDotNetCLR(assemblyName, "Managed.Plugin1Singleton", "RunInstance");
+        clrHost.InvokeDotNetCLR(assemblyName, "Managed.Plugin1Singleton", "Dispose");
+    }
+
+    //clrHost.InvokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
     
     return 0;
 }

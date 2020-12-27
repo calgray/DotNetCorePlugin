@@ -26,50 +26,57 @@ public:
     
     ~CoreCLRHost() = default;
 
-    void invokeDotNetCLR(
+    void InvokeDotNetCLR(
         const std::string& assemblyName,
         const std::string& entryPointType,
         const std::string& entryPointName);
 
-    void invokeDotNetCLRCallback(
+    void InvokeDotNetCLRCallback(
         const std::string& assemblyName,
         const std::string& entryPointType,
         const std::string& entryPointName,
         interop_class& tmp);
 
-    template<typename T>
-    void invokeDotNetCLRCallback(
+
+    template<typename T, typename... Args>
+    void InvokeDotNetCLRCallback(
         const std::string& assemblyName,
         const std::string& entryPointType,
         const std::string& entryPointName,
         T& instance,
-        void(T::*method)())
+        void(T::*method)(Args...))
     {
         void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
         if(handle)
         {   
-            reinterpret_cast<void(*)(T&, void(T::*)())>(handle)(instance, method);
+            reinterpret_cast<void(*)(T&, void(T::*)(Args...))>(handle)(instance, method);
         }
     }
 
-    template<typename T, typename ...Arg>
-    void invokeDotNetCLRCallback(
+    template<typename T, typename... Args,
+        typename = std::enable_if_t<
+        std::is_fundamental<T>::value || std::is_same<char*, T>::value>>
+        //(std::is_pointer<T>::value && std::is_fundamental<std::remove_pointer_t<T>>::value)>>
+    T InvokeDotNetCLRFunc(
         const std::string& assemblyName,
         const std::string& entryPointType,
         const std::string& entryPointName,
-        T& instance,
-        void(T::*method)(Arg...))
+        Args... args)
     {
+        //typename=std::enable_if_t<is_fundamental<T>::value>...
         void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
-        if(handle)
-        {   
-            reinterpret_cast<void(*)(T&, void(T::*)(Arg...))>(handle)(instance, method);
+        if(!handle)
+        {
+            throw std::runtime_error("invalid handle");
         }
+
+        return reinterpret_cast<T(*)(Args...)>(handle)(args...);
+        
     }
 };
 
 
-void runFromEntryPoint(
+void RunFromEntryPoint(
         const std::string& currentExePath,
         const std::string& clrFilesAbsolutePath,
         const std::string& managedAssemblyAbsoluteDir,
