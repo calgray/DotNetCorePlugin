@@ -47,7 +47,7 @@ int main(int /*argc*/, char* argv[])
         clrFilesAbsolutePath,
         managedAssemblyAbsoluteDir);
 
-    auto entryPointType = "Managed.Trivial";
+    auto entryPointType = "Managed.TrivialInterop";
 
     // C# Action
     clrHost.InvokeDotNetCLR(assemblyName, entryPointType, "HelloWorld");
@@ -86,8 +86,9 @@ int main(int /*argc*/, char* argv[])
             entryPointType,
             "AddPlugin",
             new native_plugin(),
-            [](native_plugin* instance) { delete instance; });
-    } 
+            [](native_plugin* instance) { delete instance; },
+            &native_plugin::update);
+    }
 
     // C# singleton
     bool singleton = false;

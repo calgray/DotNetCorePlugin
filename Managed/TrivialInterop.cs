@@ -9,7 +9,7 @@ using Gtk;
 
 namespace Managed
 {
-    public class Trivial
+    public class TrivialInterop
     {
         public static void HelloWorld()
         {
@@ -27,13 +27,21 @@ namespace Managed
             return "v1.2.3";
         }
 
-        public static void AddPlugin(IntPtr thisPtr, IntPtr deletePtr)
+        public static void AddPlugin(IntPtr thisPtr, IntPtr deletePtr, IntPtr updatePtr)
         {
-            UnmanagedAction method = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
+            UnmanagedAction delete = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
                 deletePtr,
                 typeof(UnmanagedAction)
             );
-            method(thisPtr);
+
+            // Do whatever and delete once done
+            UnmanagedAction update = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
+                updatePtr,
+                typeof(UnmanagedAction)
+            );
+            update(thisPtr);
+
+            delete(thisPtr);
         }
 
         public static void HelloGtk()
