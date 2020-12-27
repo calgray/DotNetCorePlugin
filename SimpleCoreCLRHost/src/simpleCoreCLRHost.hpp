@@ -26,17 +26,19 @@ public:
     
     ~CoreCLRHost() = default;
 
+    template<typename... Args>
     void InvokeDotNetCLR(
         const std::string& assemblyName,
         const std::string& entryPointType,
-        const std::string& entryPointName);
-
-    void InvokeDotNetCLRCallback(
-        const std::string& assemblyName,
-        const std::string& entryPointType,
         const std::string& entryPointName,
-        interop_class& tmp);
-
+        Args... args)
+    {
+        void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
+        if(handle)
+        {
+            reinterpret_cast<void(*)(Args...)>(handle)(args...);
+        }
+    }
 
     template<typename T, typename... Args>
     void InvokeDotNetCLRCallback(
@@ -56,14 +58,12 @@ public:
     template<typename T, typename... Args,
         typename = std::enable_if_t<
         std::is_fundamental<T>::value || std::is_same<char*, T>::value>>
-        //(std::is_pointer<T>::value && std::is_fundamental<std::remove_pointer_t<T>>::value)>>
     T InvokeDotNetCLRFunc(
         const std::string& assemblyName,
         const std::string& entryPointType,
         const std::string& entryPointName,
         Args... args)
     {
-        //typename=std::enable_if_t<is_fundamental<T>::value>...
         void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
         if(!handle)
         {

@@ -27,6 +27,15 @@ namespace Managed
             return "v1.2.3";
         }
 
+        public static void AddPlugin(IntPtr thisPtr, IntPtr deletePtr)
+        {
+            UnmanagedAction method = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
+                deletePtr,
+                typeof(UnmanagedAction)
+            );
+            method(thisPtr);
+        }
+
         public static void HelloGtk()
         {
             Gtk.Application.Init();

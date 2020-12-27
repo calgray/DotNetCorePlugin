@@ -61,24 +61,13 @@ CoreCLRHost::CoreCLRHost(
     const std::string& currentExePath,
     const std::string& clrFilesAbsolutePath,
     const std::string& managedAssemblyAbsoluteDir)
-    {
-        std::string coreClrDllPath = clrFilesAbsolutePath + "/" + coreClrDll;
-        if(coreClrDllPath.size() >= PATH_MAX)
-        {
-            throw std::invalid_argument("Path to libcoreclr.dll too long!");
-        }
-
-        m_clr = std::make_unique<CoreCLR>(coreClrDllPath, managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
-    }
-
-void CoreCLRHost::InvokeDotNetCLR(
-    const std::string& assemblyName,
-    const std::string& entryPointType,
-    const std::string& entryPointName)
 {
-    void* handle = m_clr->getCSharpFunctionPtr(assemblyName, entryPointType, entryPointName);
-    if(handle)
+    std::string coreClrDllPath = clrFilesAbsolutePath + "/" + coreClrDll;
+    if(coreClrDllPath.size() >= PATH_MAX)
     {
-        reinterpret_cast<void(*)()>(handle)();
+        throw std::invalid_argument("Path to libcoreclr.dll too long!");
     }
+
+    m_clr = std::make_unique<CoreCLR>(coreClrDllPath, managedAssemblyAbsoluteDir, clrFilesAbsolutePath, currentExePath);
 }
+

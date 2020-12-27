@@ -11,12 +11,17 @@
 #include "simpleCoreCLRHost.hpp"
 //#include "coreclr.hpp"
 
+#include "native_plugin.hpp"
+
 #include <iostream>
 #include <filesystem>
 #include <string>
 #include <utility>
 #include <stdexcept>
 #include <thread>
+
+void delete_pluginx(native_plugin*) { }
+void delete_plugin(native_plugin* instance) { delete instance; }
 
 int main(int /*argc*/, char* argv[])
 {
@@ -31,13 +36,11 @@ int main(int /*argc*/, char* argv[])
         throw std::runtime_error("assemblyPath does not exist");
     }
 
-
     auto clrFilesAbsolutePath = "/usr/share/dotnet/shared/Microsoft.NETCore.App/5.0.1";
     if(!std::filesystem::exists(clrFilesAbsolutePath))
     {
         throw std::runtime_error("clr not installed at specified path");
     }
-
 
     auto clrHost = CoreCLRHost(
         currentExePath,
@@ -50,7 +53,6 @@ int main(int /*argc*/, char* argv[])
     clrHost.InvokeDotNetCLR(assemblyName, entryPointType, "HelloWorld");
 
     // C++ callback
-
     bool delegateCallback = false;
     if (delegateCallback)
     {
@@ -75,6 +77,17 @@ int main(int /*argc*/, char* argv[])
         << std::endl;
     }
 
+    // C++ Object
+    bool moveObject = true;
+    if(moveObject)
+    {
+        clrHost.InvokeDotNetCLR<native_plugin*, void(*)(native_plugin*)>(
+            assemblyName,
+            entryPointType,
+            "AddPlugin",
+            new native_plugin(),
+            [](native_plugin* instance) { delete instance; });
+    } 
 
     // C# singleton
     bool singleton = false;
@@ -83,6 +96,10 @@ int main(int /*argc*/, char* argv[])
         clrHost.InvokeDotNetCLR(assemblyName, "Managed.Plugin1Singleton", "RunInstance");
         clrHost.InvokeDotNetCLR(assemblyName, "Managed.Plugin1Singleton", "Dispose");
     }
+
+
+    //C# object
+
 
     //clrHost.InvokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
     
