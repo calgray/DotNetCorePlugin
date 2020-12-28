@@ -12,6 +12,7 @@
 //#include "coreclr.hpp"
 
 #include "native_plugin.hpp"
+#include "dll_plugin.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -19,9 +20,6 @@
 #include <utility>
 #include <stdexcept>
 #include <thread>
-
-void delete_pluginx(native_plugin*) { }
-void delete_plugin(native_plugin* instance) { delete instance; }
 
 int main(int /*argc*/, char* argv[])
 {
@@ -77,17 +75,47 @@ int main(int /*argc*/, char* argv[])
         << std::endl;
     }
 
-    // C++ Object
-    bool moveObject = true;
-    if(moveObject)
+    //plugins
+    bool plugins = true;
+    if(plugins)
     {
+        // C++ Object
         clrHost.InvokeDotNetCLR<native_plugin*, void(*)(native_plugin*)>(
             assemblyName,
-            entryPointType,
+            "Managed.PluginManagerInterop",
             "AddPlugin",
             new native_plugin(),
             [](native_plugin* instance) { delete instance; },
             &native_plugin::update);
+
+        // C++ DLL object (TODO: dll does not need to supply method references here)
+        // clrHost.InvokeDotNetCLR<dll_plugin*, void(*)(dll_plugin*)>(
+        //     assemblyName,
+        //     "Managed.PluginManagerInterop",
+        //     "AddPlugin",
+        //     new dll_plugin(),
+        //     [](dll_plugin* instance) { delete instance; },
+        //     &dll_plugin::update);
+
+        // C# DLL object
+        clrHost.InvokeDotNetCLR(
+            assemblyName,
+            "Managed.PluginManagerInterop",
+            "LoadPlugin",
+            "ManagedPlugin"
+        );
+
+        // Update
+        clrHost.InvokeDotNetCLR(
+            assemblyName,
+            "Managed.PluginManagerInterop",
+            "UpdatePlugins");
+
+        // Dispose
+        clrHost.InvokeDotNetCLR(
+            assemblyName,
+            "Managed.PluginManagerInterop",
+            "DisposePlugins");
     }
 
     // C# singleton

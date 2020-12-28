@@ -4,12 +4,13 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Gtk;
 
 namespace Managed
 {
-    public class TrivialInterop
+    public static class TrivialInterop
     {
         public static void HelloWorld()
         {
@@ -27,23 +28,6 @@ namespace Managed
             return "v1.2.3";
         }
 
-        public static void AddPlugin(IntPtr thisPtr, IntPtr deletePtr, IntPtr updatePtr)
-        {
-            UnmanagedAction delete = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
-                deletePtr,
-                typeof(UnmanagedAction)
-            );
-
-            // Do whatever and delete once done
-            UnmanagedAction update = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
-                updatePtr,
-                typeof(UnmanagedAction)
-            );
-            update(thisPtr);
-
-            delete(thisPtr);
-        }
-
         public static void HelloGtk()
         {
             Gtk.Application.Init();
@@ -55,8 +39,6 @@ namespace Managed
             Gtk.Application.Run();
             window.Close();
         }
-
-        //TODO: function
 
         [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
         unsafe delegate void UnmanagedAction(IntPtr thisPtr);
