@@ -11,12 +11,12 @@ ida_shared void HelloWorld()
 class IPlugin
 {
 public:
-    virtual ~IPlugin() = 0;
+    //virtual ~IPlugin() = 0;
     virtual void Initialize() = 0;
     virtual void Update() = 0;
 };
 
-class NativeDllPlugin
+class NativeDllPlugin final : public IPlugin
 {
 public:
     NativeDllPlugin()
@@ -40,13 +40,14 @@ public:
     }
 };
 
+/// Export C interface
 
 ida_shared NativeDllPlugin* CreatePlugin()
 {
     return new NativeDllPlugin();
 }
 
-ida_shared void DeletePlugin(NativeDllPlugin& plugin)
+ida_shared void DestroyPlugin(NativeDllPlugin& plugin)
 {
     delete &plugin;
 }

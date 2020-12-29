@@ -52,7 +52,7 @@ int main(int /*argc*/, char* argv[])
     clrHost.InvokeDotNetCLR(assemblyName, entryPointType, "HelloWorld");
 
     // C++ callback
-    bool delegateCallback = false;
+    bool delegateCallback = true;
     if (delegateCallback)
     {
         interop_class tmp = interop_class();

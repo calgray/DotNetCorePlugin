@@ -64,7 +64,7 @@ namespace Managed
             if(module == IntPtr.Zero) { throw new Exception(); }
             IntPtr createPluginPtr = dlsym(module, "CreatePlugin");
             if(createPluginPtr == IntPtr.Zero) throw new Exception();
-            IntPtr deletePtr = dlsym(module, "DeletePlugin");
+            IntPtr deletePtr = dlsym(module, "DestroyPlugin");
             if(deletePtr == IntPtr.Zero) throw new Exception();
             IntPtr updatePtr = dlsym(module, "UpdatePlugin");
             if(updatePtr == IntPtr.Zero) throw new Exception();
