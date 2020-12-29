@@ -1,12 +1,11 @@
 
 #pragma once
 
-// Exporting all to c++
-// #ifdef __cplusplus
-// #define EXTERNC extern "C"
-// #else
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
 #define EXTERNC
-// #endif
+#endif
 
 #if defined(__NT__)
     

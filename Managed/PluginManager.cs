@@ -14,31 +14,50 @@ using Gtk;
 namespace Managed
 {
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    unsafe delegate IntPtr UnmanagedFuncFunctionIntPtr();
+
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     unsafe delegate void UnmanagedActionFunction();
 
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
-    unsafe delegate void UnmanagedAction(IntPtr thisPtr);
+    unsafe delegate void UnmanagedActionMethod(IntPtr thisPtr);
 
-    public class UnmanagedPlugin : IPlugin, IDisposable
+    class UnmanagedPlugin : IPlugin, IDisposable
     {
         IntPtr m_thisPtr;
-        UnmanagedAction m_handleDelete;
-        UnmanagedAction m_handleUpdate;
+        UnmanagedActionMethod m_handleDelete;
+        UnmanagedActionMethod m_handleUpdate;
 
+        [Obsolete("Use safe types")]
         public UnmanagedPlugin(IntPtr thisPtr, IntPtr deletePtr, IntPtr updatePtr)
         {
             m_thisPtr = thisPtr;
 
-            m_handleDelete = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
+            m_handleDelete = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
                 deletePtr,
-                typeof(UnmanagedAction)
+                typeof(UnmanagedActionMethod)
             );
 
-            // Do whatever and delete once done
-            m_handleUpdate = (UnmanagedAction)Marshal.GetDelegateForFunctionPointer(
+            m_handleUpdate = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
                 updatePtr,
-                typeof(UnmanagedAction)
+                typeof(UnmanagedActionMethod)
             );
+            
+            m_handleUpdate(m_thisPtr);
+        }
+
+        public UnmanagedPlugin(IntPtr thisPtr, UnmanagedActionMethod delete, UnmanagedActionMethod update)
+        {
+            m_thisPtr = thisPtr;
+            m_handleDelete = delete;
+            m_handleUpdate = update;
+        }
+
+        public UnmanagedPlugin(UnmanagedFuncFunctionIntPtr create, UnmanagedActionMethod delete, UnmanagedActionMethod update)
+        {
+            m_thisPtr = create();
+            m_handleDelete = delete;
+            m_handleUpdate = update;
         }
 
         public void Initialize() {}
@@ -52,6 +71,41 @@ namespace Managed
         {
             m_handleDelete(m_thisPtr);
         }
+    }
+
+    /**
+     * Same as unmanagedPlugin but handle module unloading
+     */
+    class UnmanagedDllPlugin : IPlugin, IDisposable
+    {
+        IntPtr m_module;
+        IntPtr m_thisPtr;
+        UnmanagedActionMethod m_handleDelete;
+        UnmanagedActionMethod m_handleUpdate;
+
+        public UnmanagedDllPlugin(IntPtr module, IntPtr thisPtr, UnmanagedActionMethod delete, UnmanagedActionMethod update)
+        {
+            m_module = module;
+            m_thisPtr = thisPtr;
+            m_handleDelete = delete;
+            m_handleUpdate = update;
+        }
+
+        public void Initialize() {}
+
+        public void Update()
+        {
+            m_handleUpdate(m_thisPtr);
+        }
+        
+        public void Dispose()
+        {
+            m_handleDelete(m_thisPtr);
+            dlclose(m_module);
+        }
+
+        [DllImport("libdl.so", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr dlclose(IntPtr module);
     }
 
     public class PluginManager : IDisposable
@@ -113,42 +167,53 @@ namespace Managed
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 name + ".dll"
             );
-            var dll = Assembly.LoadFile(filepath);
-            var pluginType = GetTypesWithPluginAttribute(dll).First();
+            var assembly = Assembly.LoadFile(filepath);
+            var pluginType = GetTypesWithPluginAttribute(assembly).First();
             var plugin = (IPlugin)Activator.CreateInstance(pluginType, null);
             Singleton<PluginManager>.Instance.AddPlugin(plugin);
         }
 
         public static void LoadNativePlugin(string name)
         {
-            Console.WriteLine(name);
-
 #if WIN32
-#else
+#else // UNIX
             string filepath = Path.Combine(
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "lib" + name + ".so"
             );
             IntPtr module = dlopen(filepath, DlFlag.RTLD_LAZY);
-            if(module == IntPtr.Zero)
-            {
-                throw new Exception();
-            }
+            if(module == IntPtr.Zero) { throw new Exception(); }
 
 
-            IntPtr helloWorldPtr = dlsym(module, "HelloWorld");
-            if(helloWorldPtr == IntPtr.Zero)
-            {
-                throw new Exception();
-            }
-            Console.WriteLine(helloWorldPtr);
-            UnmanagedActionFunction helloWorld = (UnmanagedActionFunction)Marshal.GetDelegateForFunctionPointer(
-                helloWorldPtr,
-                typeof(UnmanagedActionFunction)
+            IntPtr createPluginPtr = dlsym(module, "CreatePlugin");
+            if(createPluginPtr == IntPtr.Zero) throw new Exception();
+
+            UnmanagedFuncFunctionIntPtr createPlugin = (UnmanagedFuncFunctionIntPtr)Marshal.GetDelegateForFunctionPointer(
+                createPluginPtr,
+                typeof(UnmanagedFuncFunctionIntPtr)
             );
-            helloWorld();
 
-            dlclose(module);
+            IntPtr deletePtr = dlsym(module, "DeletePlugin");
+            if(deletePtr == IntPtr.Zero) throw new Exception();
+            UnmanagedActionMethod delete = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
+                deletePtr,
+                typeof(UnmanagedActionMethod)
+            );
+
+
+            IntPtr updatePtr = dlsym(module, "UpdatePlugin");
+            if(updatePtr == IntPtr.Zero) throw new Exception();
+            UnmanagedActionMethod update = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
+                updatePtr,
+                typeof(UnmanagedActionMethod)
+            );
+            
+            IntPtr thisPtr = createPlugin();
+
+            var plugin = new UnmanagedDllPlugin(module, thisPtr, delete, update);
+            Singleton<PluginManager>.Instance.AddPlugin(plugin);
+
+            //dlclose(module);
 #endif
         }
 
@@ -202,6 +267,5 @@ namespace Managed
 
         [DllImport("libdl.so", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr dlclose(IntPtr module);
-
     }
 }
