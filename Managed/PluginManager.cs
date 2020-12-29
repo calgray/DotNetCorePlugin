@@ -22,50 +22,17 @@ namespace Managed
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
     unsafe delegate void UnmanagedActionMethod(IntPtr thisPtr);
 
-    class UnmanagedPlugin : IPlugin, IDisposable
-    {
-        IntPtr m_thisPtr;
-        UnmanagedActionMethod m_handleDelete;
-        UnmanagedActionMethod m_handleUpdate;
-
-        public UnmanagedPlugin(IntPtr thisPtr, UnmanagedActionMethod delete, UnmanagedActionMethod update)
-        {
-            m_thisPtr = thisPtr;
-            m_handleDelete = delete;
-            m_handleUpdate = update;
-        }
-
-        public UnmanagedPlugin(UnmanagedFuncFunctionIntPtr create, UnmanagedActionMethod delete, UnmanagedActionMethod update)
-        {
-            m_thisPtr = create();
-            m_handleDelete = delete;
-            m_handleUpdate = update;
-        }
-
-        public void Initialize() {}
-
-        public void Update()
-        {
-            m_handleUpdate(m_thisPtr);
-        }
-        
-        public void Dispose()
-        {
-            m_handleDelete(m_thisPtr);
-        }
-    }
-
     /**
      * Same as unmanagedPlugin but handle module unloading
      */
-    class UnmanagedDllPlugin : IPlugin, IDisposable
+    class UnmanagedPlugin : IPlugin
     {
         IntPtr m_module;
         IntPtr m_thisPtr;
         UnmanagedActionMethod m_handleDelete;
         UnmanagedActionMethod m_handleUpdate;
 
-        public UnmanagedDllPlugin(IntPtr module, IntPtr thisPtr, UnmanagedActionMethod delete, UnmanagedActionMethod update)
+        public UnmanagedPlugin(IntPtr module, IntPtr thisPtr, UnmanagedActionMethod delete, UnmanagedActionMethod update)
         {
             m_module = module;
             m_thisPtr = thisPtr;
@@ -83,9 +50,18 @@ namespace Managed
         public void Dispose()
         {
             m_handleDelete(m_thisPtr);
-            dlclose(m_module);
-            Console.WriteLine("Closed unmanaged dll");
+            if(m_module != IntPtr.Zero)
+            {
+#if WIN32
+                FreeLibrary(m_module);
+#else // UNIX
+                dlclose(m_module);
+#endif
+            }
         }
+
+        [DllImport("kernel32.dll")]
+        public static extern bool FreeLibrary(IntPtr hModule);
 
         [DllImport("libdl.so", CharSet = CharSet.Auto, SetLastError = true)]
         private static extern IntPtr dlclose(IntPtr module);
@@ -144,7 +120,7 @@ namespace Managed
                 updatePtr,
                 typeof(UnmanagedActionMethod)
             );
-            var plugin = new UnmanagedPlugin(thisPtr, delete, update);
+            var plugin = new UnmanagedPlugin(IntPtr.Zero, thisPtr, delete, update);
             Singleton<PluginManager>.Instance.AddPlugin(plugin);
         }
 
@@ -202,7 +178,7 @@ namespace Managed
             
             IntPtr thisPtr = createPlugin();
 
-            var plugin = new UnmanagedDllPlugin(module, thisPtr, delete, update);
+            var plugin = new UnmanagedPlugin(module, thisPtr, delete, update);
             Singleton<PluginManager>.Instance.AddPlugin(plugin);
 #endif
         }
