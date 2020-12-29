@@ -28,24 +28,6 @@ namespace Managed
         UnmanagedActionMethod m_handleDelete;
         UnmanagedActionMethod m_handleUpdate;
 
-        [Obsolete("Use safe types")]
-        public UnmanagedPlugin(IntPtr thisPtr, IntPtr deletePtr, IntPtr updatePtr)
-        {
-            m_thisPtr = thisPtr;
-
-            m_handleDelete = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
-                deletePtr,
-                typeof(UnmanagedActionMethod)
-            );
-
-            m_handleUpdate = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
-                updatePtr,
-                typeof(UnmanagedActionMethod)
-            );
-            
-            m_handleUpdate(m_thisPtr);
-        }
-
         public UnmanagedPlugin(IntPtr thisPtr, UnmanagedActionMethod delete, UnmanagedActionMethod update)
         {
             m_thisPtr = thisPtr;
@@ -102,6 +84,7 @@ namespace Managed
         {
             m_handleDelete(m_thisPtr);
             dlclose(m_module);
+            Console.WriteLine("Closed unmanaged dll");
         }
 
         [DllImport("libdl.so", CharSet = CharSet.Auto, SetLastError = true)]
@@ -152,7 +135,16 @@ namespace Managed
     {
         public static void AddPlugin(IntPtr thisPtr, IntPtr deletePtr, IntPtr updatePtr)
         {
-            var plugin = new UnmanagedPlugin(thisPtr, deletePtr, updatePtr);
+            var delete = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
+                deletePtr,
+                typeof(UnmanagedActionMethod)
+            );
+
+            var update = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
+                updatePtr,
+                typeof(UnmanagedActionMethod)
+            );
+            var plugin = new UnmanagedPlugin(thisPtr, delete, update);
             Singleton<PluginManager>.Instance.AddPlugin(plugin);
         }
 
@@ -212,8 +204,6 @@ namespace Managed
 
             var plugin = new UnmanagedDllPlugin(module, thisPtr, delete, update);
             Singleton<PluginManager>.Instance.AddPlugin(plugin);
-
-            //dlclose(module);
 #endif
         }
 
