@@ -10,7 +10,7 @@ add_executable(${TARGET_NAME}
 
 add_dependencies(${TARGET_NAME} dynamicLinker)
 add_dependencies(${TARGET_NAME} Managed)
-#add_dependencies(${TARGET_NAME} ManagedPlugin)
+add_dependencies(${TARGET_NAME} ManagedPlugin)
 add_dependencies(${TARGET_NAME} NativePlugin)
 add_dependencies(${TARGET_NAME} NativeDllPlugin)
 

@@ -15,7 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../ManagedAPI/ManagedAPI.csproj" />
+    <ProjectReference Include="../ManagedPluginAPI/ManagedPluginAPI.csproj" />
   </ItemGroup>
 
 </Project>

@@ -13,6 +13,9 @@ using Gtk;
 
 namespace Managed
 {
+    [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+    unsafe delegate void UnmanagedActionFunction();
+
     [UnmanagedFunctionPointer(CallingConvention.ThisCall)]
     unsafe delegate void UnmanagedAction(IntPtr thisPtr);
 
@@ -100,9 +103,9 @@ namespace Managed
         }
 
         /// <summary>
-        /// Loads a plugin from a dll file
+        /// Loads a CLR Plugin from a dll file
         /// </summary>
-        public static void LoadPlugin(string name)
+        public static void LoadCLRPlugin(string name)
         {
             Console.WriteLine(name);
             string filepath = Path.Combine(
@@ -116,6 +119,39 @@ namespace Managed
             Singleton<PluginManager>.Instance.AddPlugin(plugin);
         }
 
+        public static void LoadNativePlugin(string name)
+        {
+            Console.WriteLine(name);
+
+#if WIN32
+#else
+            string filepath = Path.Combine(
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                "lib" + name + ".so"
+            );
+            IntPtr module = dlopen(filepath, DlFlag.RTLD_LAZY);
+            if(module == IntPtr.Zero)
+            {
+                throw new Exception();
+            }
+
+
+            IntPtr helloWorldPtr = dlsym(module, "HelloWorld");
+            if(helloWorldPtr == IntPtr.Zero)
+            {
+                throw new Exception();
+            }
+            Console.WriteLine(helloWorldPtr);
+            UnmanagedActionFunction helloWorld = (UnmanagedActionFunction)Marshal.GetDelegateForFunctionPointer(
+                helloWorldPtr,
+                typeof(UnmanagedActionFunction)
+            );
+            helloWorld();
+
+            dlclose(module);
+#endif
+        }
+
         public static void UpdatePlugins()
         {
             Singleton<PluginManager>.Instance.Update();
@@ -126,7 +162,6 @@ namespace Managed
             Singleton<PluginManager>.Instance.Dispose();
         }
 
-        
         private static IEnumerable<Type> GetTypesWithPluginAttribute(Assembly assembly)
         {
             foreach(Type type in assembly.GetTypes())
@@ -137,5 +172,36 @@ namespace Managed
                 }
             }
         }
+
+        // Windows
+        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr LoadLibrary(string libName);
+        
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr GetProcAddress(IntPtr hModule, string procedureName);
+
+        [DllImport("kernel32.dll")]
+        public static extern bool FreeLibrary(IntPtr hModule);
+
+        // Unix
+        enum DlFlag
+        {
+            RTLD_LOCAL = 0x00000,
+            RTLD_LAZY = 0x00001,
+            RTLD_NOW = 0x00002,
+            RTLD_NOLOAD = 0x00004,
+            RTLD_DEEPBIND = 0x00008,
+            RTLD_NODELETE = 0x01000,
+            RTLD_GLOBAL = 0x00100,
+        };
+        [DllImport("libdl.so", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr dlopen(string libName, DlFlag flag);
+
+        [DllImport("libdl.so", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr dlsym(IntPtr module, string name);
+
+        [DllImport("libdl.so", CharSet = CharSet.Auto, SetLastError = true)]
+        private static extern IntPtr dlclose(IntPtr module);
+
     }
 }

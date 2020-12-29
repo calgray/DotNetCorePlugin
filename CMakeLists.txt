@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -pthread -Werror -pedantic -Wall -We
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/bin)
 
 add_subdirectory(external/dynamicLinker)
-add_subdirectory(ManagedAPI)
+add_subdirectory(ManagedPluginAPI)
 add_subdirectory(Managed)
 add_subdirectory(ManagedPlugin)
 add_subdirectory(NativePlugin)

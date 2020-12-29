@@ -20,7 +20,7 @@
 #include <utility>
 #include <stdexcept>
 #include <thread>
-
+#
 int main(int /*argc*/, char* argv[])
 {
     auto currentExePath = std::string(argv[0]);
@@ -88,6 +88,13 @@ int main(int /*argc*/, char* argv[])
             [](native_plugin* instance) { delete instance; },
             &native_plugin::update);
 
+        clrHost.InvokeDotNetCLR(
+            assemblyName,
+            "Managed.PluginManagerInterop",
+            "LoadNativePlugin",
+            "NativeDllPlugin"
+        );
+
         // C++ DLL object (TODO: dll does not need to supply method references here)
         // clrHost.InvokeDotNetCLR<dll_plugin*, void(*)(dll_plugin*)>(
         //     assemblyName,
@@ -101,7 +108,7 @@ int main(int /*argc*/, char* argv[])
         clrHost.InvokeDotNetCLR(
             assemblyName,
             "Managed.PluginManagerInterop",
-            "LoadPlugin",
+            "LoadCLRPlugin",
             "ManagedPlugin"
         );
 
