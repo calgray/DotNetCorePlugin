@@ -4,6 +4,9 @@ set(TARGET_NAME NativeDllPlugin)
 add_library(${TARGET_NAME} SHARED
         src/NativeDllPlugin.cpp)
 
+add_dependencies(${TARGET_NAME} SimplePluginFramework)
+add_dependencies(${TARGET_NAME} NativePluginAPI)
+
 message(${CMAKE_CURRENT_BINARY_DIR})
 message(${CMAKE_CURRENT_SOURCE_DIR})
 message(bin/${CONFIGURATION}/${CS_STANDARD})

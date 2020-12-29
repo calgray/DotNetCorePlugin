@@ -1,17 +1,16 @@
 
 #pragma once
 
-// Exporting all to c++
-// #ifdef __cplusplus
-// #define EXTERNC extern "C"
-// #else
+#ifdef __cplusplus
+#define EXTERNC extern "C"
+#else
 #define EXTERNC
-// #endif
+#endif
 
 #if defined(__NT__)
     
     // Microsoft switching header
-    #if defined(SimpleCoreCLRHost_EXPORTS)
+    #if defined(CoreCLRHost_EXPORTS)
     #define DLLEXPORT               __declspec(dllexport)
     #else
     #define DLLEXPORT               __declspec(dllimport)

@@ -6,6 +6,10 @@ foreach(each_file ${_file_list})
   
   file(TIMESTAMP ${sourcefile} SRC_TIMESTAMP)
   file(TIMESTAMP ${destinationfile} DST_TIMESTAMP)
+  
+  if(NOT EXISTS ${destinationfile})
+    set(DST_TIMESTAMP 0)
+  endif()
   if(NOT EXISTS ${destinationfile} OR ${SRC_TIMESTAMP} STRGREATER ${DST_TIMESTAMP})
     get_filename_component(destinationdir ${destinationfile} DIRECTORY)
     file(COPY ${sourcefile} DESTINATION ${destinationdir})

@@ -10,7 +10,7 @@
 #if defined(__NT__)
     
     // Microsoft switching header
-    #if defined(SimpleCoreCLRHost_EXPORTS)
+    #if defined(CoreCLRHost_EXPORTS)
     #define DLLEXPORT               __declspec(dllexport)
     #else
     #define DLLEXPORT               __declspec(dllimport)

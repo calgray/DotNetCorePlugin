@@ -1,4 +1,4 @@
-# simpleCoreCLRHost
+# CoreCLRHost
 
 Disclaimer: This is only [PoC](https://en.wikipedia.org/wiki/Proof_of_concept), do not copy-paste this code into production.
 
@@ -20,11 +20,11 @@ mkdir -p build && cd ./build
 cmake -DCMAKE_CXX_COMPILER=g++-8  ..
 cmake --build .
 ```
-Then *Managed.dll* and *SimpleCoreCLRHost* will appear in bin/ directory in this repo.
+Then *Managed.dll* and *CoreCLRHost* will appear in bin/ directory in this repo.
 
 ## Usage
 
-`./SimpleCoreCLRHost DLL_PATH ASSEMBLY_PATH ENTRY_POINT_TYPE ENTRY_POINT_NAME`
+`./CoreCLRHost DLL_PATH ASSEMBLY_PATH ENTRY_POINT_TYPE ENTRY_POINT_NAME`
 
 *DLL_PATH* - **absolute** path to coreFX/coreCLR DLL dir ( with libcoreclr.so, mscorlib.dll, and other used by program ).
 
@@ -44,7 +44,7 @@ You will get 0x80131040 error, because your assembly will get listed in Trusted 
 
 ```sh
 cd ./bin
-./SimpleCoreCLRHost /usr/share/dotnet/shared/Microsoft.NETCore.App/5.0.1/ ./Managed.dll Trivial runActionMethod
+./SimplePluginFramework /usr/share/dotnet/shared/Microsoft.NETCore.App/5.0.1/ ./Managed.dll Trivial runActionMethod
 ```
 
 will print:

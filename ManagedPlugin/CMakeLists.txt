@@ -15,3 +15,6 @@ add_custom_target(ManagedPlugin ALL
         -P ${CMAKE_SOURCE_DIR}/cmake/update_directory.cmake
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
+
+add_dependencies(ManagedPlugin Managed)
+add_dependencies(ManagedPlugin ManagedPluginAPI)

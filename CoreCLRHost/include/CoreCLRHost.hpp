@@ -6,7 +6,6 @@
 #pragma once
 
 #include "coreclr.hpp"
-#include "interop_class.hpp"
 #include <string>
 #include <memory>
 
@@ -74,12 +73,3 @@ public:
         
     }
 };
-
-
-void RunFromEntryPoint(
-        const std::string& currentExePath,
-        const std::string& clrFilesAbsolutePath,
-        const std::string& managedAssemblyAbsoluteDir,
-        const std::string& assemblyName,
-        const std::string& entryPointType,
-        const std::string& entryPointName);

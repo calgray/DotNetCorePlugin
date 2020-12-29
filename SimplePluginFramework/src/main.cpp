@@ -8,11 +8,12 @@
     #error THIS SOFTWARE IS ONLY FOR UNIX-LIKE SYSTEMS!
 #endif
 
-#include "simpleCoreCLRHost.hpp"
-//#include "coreclr.hpp"
+#include <CoreCLRHost.hpp>
+#include <coreclr.hpp>
+#include "dotnetcore_runtime.hpp"
 
-#include "native_plugin.hpp"
-#include "dll_plugin.hpp"
+#include "interop_class.hpp"
+#include "CorePlugin.hpp"
 
 #include <iostream>
 #include <filesystem>
@@ -20,7 +21,7 @@
 #include <utility>
 #include <stdexcept>
 #include <thread>
-#
+
 int main(int /*argc*/, char* argv[])
 {
     auto currentExePath = std::string(argv[0]);
@@ -34,7 +35,7 @@ int main(int /*argc*/, char* argv[])
         throw std::runtime_error("assemblyPath does not exist");
     }
 
-    auto clrFilesAbsolutePath = "/usr/share/dotnet/shared/Microsoft.NETCore.App/5.0.1";
+    std::string clrFilesAbsolutePath = GetDotNetCoreRuntimePath();
     if(!std::filesystem::exists(clrFilesAbsolutePath))
     {
         throw std::runtime_error("clr not installed at specified path");
@@ -79,15 +80,16 @@ int main(int /*argc*/, char* argv[])
     bool plugins = true;
     if(plugins)
     {
-        // C++ Object
-        clrHost.InvokeDotNetCLR<native_plugin*, void(*)(native_plugin*)>(
+        // C++ plugin
+        clrHost.InvokeDotNetCLR<CorePlugin*, void(*)(CorePlugin*)>(
             assemblyName,
             "Managed.PluginManagerInterop",
             "AddPlugin",
-            new native_plugin(),
-            [](native_plugin* instance) { delete instance; },
-            &native_plugin::update);
+            new CorePlugin(),
+            [](CorePlugin* instance) { delete instance; },
+            &CorePlugin::update);
 
+        // C++ DLL plugin
         clrHost.InvokeDotNetCLR(
             assemblyName,
             "Managed.PluginManagerInterop",
@@ -95,16 +97,7 @@ int main(int /*argc*/, char* argv[])
             "NativeDllPlugin"
         );
 
-        // C++ DLL object (TODO: dll does not need to supply method references here)
-        // clrHost.InvokeDotNetCLR<dll_plugin*, void(*)(dll_plugin*)>(
-        //     assemblyName,
-        //     "Managed.PluginManagerInterop",
-        //     "AddPlugin",
-        //     new dll_plugin(),
-        //     [](dll_plugin* instance) { delete instance; },
-        //     &dll_plugin::update);
-
-        // C# DLL object
+        // C# DLL plugin
         clrHost.InvokeDotNetCLR(
             assemblyName,
             "Managed.PluginManagerInterop",
@@ -135,8 +128,6 @@ int main(int /*argc*/, char* argv[])
 
 
     //C# object
-
-
     //clrHost.InvokeDotNetCLR(assemblyName, entryPointType, "HelloGtk");
     
     return 0;

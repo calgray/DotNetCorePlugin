@@ -88,7 +88,7 @@ void CoreCLR::initializeCoreCLR(const std::string& managedAssemblyAbsoluteDir,
     // initialize coreclr
     int status = coreclr_initialize(
             currentExePath.c_str(),
-            "simpleCoreCLRHost",
+            "CoreCLRHost",
             sizeof(propertyKeys) / sizeof(propertyKeys[0]),
             propertyKeys,
             propertyValues,
