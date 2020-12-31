@@ -1,18 +1,8 @@
-#nullable enable
 
 using System;
 
 namespace Managed
 {
-    public class PluginInterop
-    {
-        //TODO: Use attribute on ManagedPlugin
-        public static Type GetPluginType()
-        {
-            return typeof(ManagedPlugin);
-        }
-    }
-
     [Plugin]
     public class ManagedPlugin : IPlugin
     {

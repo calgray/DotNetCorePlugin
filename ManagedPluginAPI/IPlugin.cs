@@ -1,4 +1,3 @@
-#nullable enable
 
 using System;
 
@@ -8,6 +7,17 @@ namespace Managed
     {
         void Initialize();
         void Update();
-        void Dispose();
+
+        // GameConstructionEvent
+        // GamePreInitializationEvent
+        // GameInitializationEvent
+        // GamePostInitializationEvent
+        // GameLoadCompleteEvent
+
+        // GameAboutToStartServerEvent
+        // GameStartingServerEvent
+        // GameStartedServerEvent
+        // GameStoppingServerEvent
+        // GameStoppedServerEvent
     }
 }

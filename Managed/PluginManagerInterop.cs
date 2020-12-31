@@ -35,7 +35,6 @@ namespace Managed
         /// <param name="name">name of the local dll file</param>
         public static void LoadCLRPlugin(string name)
         {
-            Console.WriteLine(name);
             string filepath = Path.Combine(
                 //Alternative: GetEntryAssembly
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),

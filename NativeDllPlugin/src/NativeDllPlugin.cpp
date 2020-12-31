@@ -21,22 +21,22 @@ class NativeDllPlugin final : public IPlugin
 public:
     NativeDllPlugin()
     {
-        std::cout << "native dll plugin constructor" << std::endl;
+        std::cout << "NativeDllPlugin Constructor" << std::endl;
     }
 
     ~NativeDllPlugin()
     {
-        std::cout << "native dll plugin destructor" << std::endl;
+        std::cout << "NativeDllPlugin Destructor" << std::endl;
     }
 
     void Initialize()
     {
-        std::cout << "native dll plugin initialize" << std::endl;
+        std::cout << "NativeDllPlugin Initialize" << std::endl;
     }
 
     void Update()
     {
-        std::cout << "native dll plugin update" << std::endl;
+        std::cout << "NativeDllPlugin Update" << std::endl;
     }
 };
 
