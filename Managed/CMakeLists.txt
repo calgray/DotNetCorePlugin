@@ -1,5 +1,4 @@
 
-
 set(CS_STANDARD netstandard2.1)
 set(CONFIGURATION Debug)
 

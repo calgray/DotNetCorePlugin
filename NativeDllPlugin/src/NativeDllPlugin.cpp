@@ -3,11 +3,6 @@
 
 #include <iostream>
 
-ida_shared void HelloWorld()
-{
-    std::cout << "Hello World" << std::endl;
-}
-
 class IPlugin
 {
 public:
