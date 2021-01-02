@@ -87,13 +87,23 @@ int main(int /*argc*/, char* argv[])
             "AddPlugin",
             new CorePlugin(),
             [](CorePlugin* instance) { delete instance; },
-            &CorePlugin::update);
+            &CorePlugin::initialize,
+            &CorePlugin::update
+        );
 
-        // C++ DLL plugin
+        // C interface plugin
         clrHost.InvokeDotNetCLR(
             assemblyName,
             "Managed.PluginManagerInterop",
             "LoadNativePlugin",
+            "NativeDllPlugin"
+        );
+
+        // C++ CppSharp C# DLL plugin
+        clrHost.InvokeDotNetCLR(
+            assemblyName,
+            "Managed.PluginManagerInterop",
+            "LoadCLRPlugin",
             "NativeDllPlugin"
         );
 
@@ -104,6 +114,12 @@ int main(int /*argc*/, char* argv[])
             "LoadCLRPlugin",
             "ManagedPlugin"
         );
+
+        // Initialize
+        clrHost.InvokeDotNetCLR(
+            assemblyName,
+            "Managed.PluginManagerInterop",
+            "InitializePlugins");
 
         // Update
         clrHost.InvokeDotNetCLR(

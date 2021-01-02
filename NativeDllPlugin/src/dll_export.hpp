@@ -28,10 +28,10 @@
         #define ida_local           EXTERNC __attribute__((visibility("hidden")))
     #else // Linux
         #if __GNUC__ >= 4
-            #define ida_shared      EXTERNC __attribute__((visibility("default")))
-            #define ida_local       EXTERNC __attribute__((visibility("hidden")))
+            #define ida_shared      __attribute__((visibility("default")))
+            #define ida_local       __attribute__((visibility("hidden")))
         #else
-            #define ida_shared      EXTERNC
+            #define ida_shared
             #define ida_local
         #endif
     #endif

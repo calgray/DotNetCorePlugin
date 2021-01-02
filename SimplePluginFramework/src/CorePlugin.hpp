@@ -19,6 +19,11 @@ public:
         std::cout << "CorePlugin Destructor" << std::endl;
     }
 
+    void initialize()
+    {
+        std::cout << "CorePlugin Initialize" << std::endl;
+    }
+
     void update()
     {
         std::cout << "CorePlugin Update" << std::endl;

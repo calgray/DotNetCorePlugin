@@ -1,5 +1,7 @@
 
 set(TARGET_NAME NativeDllPlugin)
+set(CS_STANDARD netstandard2.1)
+set(CONFIGURATION Release)
 
 add_library(${TARGET_NAME} SHARED
         src/NativeDllPlugin.cpp)
@@ -7,57 +9,45 @@ add_library(${TARGET_NAME} SHARED
 add_dependencies(${TARGET_NAME} SimplePluginFramework)
 add_dependencies(${TARGET_NAME} NativePluginAPI)
 
-message(${CMAKE_CURRENT_BINARY_DIR})
-message(${CMAKE_CURRENT_SOURCE_DIR})
-message(bin/${CONFIGURATION}/${CS_STANDARD})
+target_link_libraries(${TARGET_NAME} NativePluginAPI)
 
-add_custom_target(NativeDllPluginCopyRuntime ALL
+add_custom_target(${TARGET_NAME}CopyRuntime ALL
         DEPENDS ${TARGET_NAME}
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "lib${TARGET_NAME}.so" ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-add_custom_target(NativeDllPluginBinding ALL
+get_target_property(PROJECT_INCLUDE_DIRS NativePluginAPI INCLUDE_DIRECTORIES)
+add_custom_target(${TARGET_NAME}BindingConfigure ALL
         DEPENDS ${TARGET_NAME}
         COMMAND ${PROJECT_SOURCE_DIR}/external/CppSharp/bin/Release_x64/CppSharp.CLI
-        -iln libNativeDllPlugin.so
-        -o NativeDllPlugin.dll
+        -a x64
+        -l lib${TARGET_NAME}.so
+        -o ${TARGET_NAME}.dll
+        -I=${PROJECT_INCLUDE_DIRS}
         ${CMAKE_CURRENT_SOURCE_DIR}/src/NativeDllPlugin.cpp
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-set(DOTNET_PROJECT_SRC "xml\
-        xml
-")
+add_custom_target(${TARGET_NAME}BindingProject ALL
+        COMMAND ${CMAKE_COMMAND}
+        -Dproject_file=${CMAKE_CURRENT_BINARY_DIR}/gen/${TARGET_NAME}.csproj
+        -Dcppsharp_bin_dir=../../../external/CppSharp/bin/Release_x64
+        -P ${CMAKE_SOURCE_DIR}/cmake/add_cppsharp_project.cmake
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gen/NativeDllPlugin.csproj 
-[=[
-<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="CppSharp.Runtime">
-     <HintPath>../../../external/CppSharp/bin/Release_x64/CppSharp.Runtime.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-</Project>
-]=])
+add_custom_target(${TARGET_NAME}BindingBuild ALL
+        DEPENDS ${TARGET_NAME}BindingConfigure ${TARGET_NAME}BindingProject
+        COMMAND dotnet publish -c ${CONFIGURATION}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gen
+)
 
-
-add_custom_target(NativeDllPluginBindingBuild ALL
-        DEPENDS NativeDllPluginBinding
-        COMMAND dotnet build
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gen)
-
-# add_custom_target(NativeDllPluginBindingBuild ALL
-#         DEPENDS NativeDllPluginBinding
-#         COMMAND ${CMAKE_COMMAND} -E touch NativeDllPlugin.csproj
-#         COMMAND echo ${DOTNET_PROJECT_SRC} > NativeDllPlugin.csproj
-#         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gen)
-
-# add_custom_target(NativeDllPluginBindingBuild ALL
-#         DEPENDS NativeDllPluginBinding
-#         COMMAND dotnet new NativeDllPlugin)
+add_custom_target(${TARGET_NAME}Binding ALL
+        DEPENDS ${TARGET_NAME}BindingBuild
+        COMMAND ${CMAKE_COMMAND} 
+        -Dsrc_dir=${CMAKE_CURRENT_BINARY_DIR}/gen/bin/${CONFIGURATION}/${CS_STANDARD}/publish
+        -Ddst_dir=${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        -P ${CMAKE_SOURCE_DIR}/cmake/update_directory.cmake
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/gen
+)

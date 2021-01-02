@@ -25,6 +25,7 @@ namespace Managed
         IntPtr m_module;
         IntPtr m_thisPtr;
         UnmanagedActionMethod m_handleDelete;
+        UnmanagedActionMethod m_handleInitialize;
         UnmanagedActionMethod m_handleUpdate;
 
         /// <summary>
@@ -33,12 +34,19 @@ namespace Managed
         /// <param name="module">Optional reference to native module</param>
         /// <param name="thisPtr">Pointer to ther unmanaged object</param>
         /// <param name="delete">Delegate to the destructor/delete method</param>
+        /// <param name="initialize"></param>
         /// <param name="update">Delegate to the update method</param>
-        public UnmanagedPlugin(IntPtr module, IntPtr thisPtr, UnmanagedActionMethod delete, UnmanagedActionMethod update)
+        public UnmanagedPlugin(
+            IntPtr module,
+            IntPtr thisPtr,
+            UnmanagedActionMethod delete,
+            UnmanagedActionMethod initialize,
+            UnmanagedActionMethod update)
         {
             m_module = module;
             m_thisPtr = thisPtr;
             m_handleDelete = delete;
+            m_handleInitialize = initialize;
             m_handleUpdate = update;
         }
 
@@ -60,15 +68,17 @@ namespace Managed
                 Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
                 "lib" + name + ".so"
             );
-            IntPtr module = dlopen(filepath, DlFlag.RTLD_LAZY);
-            if(module == IntPtr.Zero) { throw new Exception(); }
-            IntPtr createPluginPtr = dlsym(module, "CreatePlugin");
-            if(createPluginPtr == IntPtr.Zero) throw new Exception();
-            IntPtr deletePtr = dlsym(module, "DestroyPlugin");
-            if(deletePtr == IntPtr.Zero) throw new Exception();
-            IntPtr updatePtr = dlsym(module, "UpdatePlugin");
-            if(updatePtr == IntPtr.Zero) throw new Exception();
 #endif
+            IntPtr module = dlopen(filepath, DlFlag.RTLD_LAZY);
+            if(module == IntPtr.Zero) { throw new Exception("module"); }
+            IntPtr createPluginPtr = dlsym(module, "CreatePlugin");
+            if(createPluginPtr == IntPtr.Zero) throw new Exception("create");
+            IntPtr deletePtr = dlsym(module, "DestroyPlugin");
+            if(deletePtr == IntPtr.Zero) throw new Exception("destroy");
+            IntPtr initializePtr = dlsym(module, "InitializePlugin");
+            if(initializePtr == IntPtr.Zero) throw new Exception("initialize");
+            IntPtr updatePtr = dlsym(module, "UpdatePlugin");
+            if(updatePtr == IntPtr.Zero) throw new Exception("update");
 
             UnmanagedFuncFunctionIntPtr createPlugin = (UnmanagedFuncFunctionIntPtr)Marshal.GetDelegateForFunctionPointer(
                 createPluginPtr,
@@ -80,15 +90,23 @@ namespace Managed
                 typeof(UnmanagedActionMethod)
             );
 
+            UnmanagedActionMethod initialize = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
+                initializePtr,
+                typeof(UnmanagedActionMethod)
+            );
+
             UnmanagedActionMethod update = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
                 updatePtr,
                 typeof(UnmanagedActionMethod)
             );
 
-            return new UnmanagedPlugin(module, createPlugin(), delete, update);
+            return new UnmanagedPlugin(module, createPlugin(), delete, initialize, update);
         }
 
-        public void Initialize() {}
+        public void Initialize()
+        {
+            m_handleInitialize(m_thisPtr);
+        }
 
         public void Update()
         {

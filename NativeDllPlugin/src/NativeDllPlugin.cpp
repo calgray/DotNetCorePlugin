@@ -2,19 +2,12 @@
 #include "dll_export.hpp"
 
 #include <iostream>
+#include <IPlugin.hpp>
 
-class IPlugin
+class ida_shared NativeDllPlugin final : public IPlugin
 {
 public:
-    //virtual ~IPlugin() = 0;
-    virtual void Initialize() = 0;
-    virtual void Update() = 0;
-};
-
-class NativeDllPlugin final : public IPlugin
-{
-public:
-    NativeDllPlugin()
+     NativeDllPlugin()
     {
         std::cout << "NativeDllPlugin Constructor" << std::endl;
     }
@@ -35,19 +28,26 @@ public:
     }
 };
 
-/// Export C interface
-
-ida_shared NativeDllPlugin* CreatePlugin()
+// Export C interface
+extern "C"
 {
-    return new NativeDllPlugin();
-}
+    ida_shared NativeDllPlugin* CreatePlugin()
+    {
+        return new NativeDllPlugin();
+    }
 
-ida_shared void DestroyPlugin(NativeDllPlugin& plugin)
-{
-    delete &plugin;
-}
+    ida_shared void DestroyPlugin(NativeDllPlugin& plugin)
+    {
+        delete &plugin;
+    }
 
-ida_shared void UpdatePlugin(NativeDllPlugin& plugin)
-{
-    plugin.Update();
+    ida_shared void InitializePlugin(NativeDllPlugin& plugin)
+    {
+        plugin.Initialize();
+    }
+
+    ida_shared void UpdatePlugin(NativeDllPlugin& plugin)
+    {
+        plugin.Update();
+    }
 }

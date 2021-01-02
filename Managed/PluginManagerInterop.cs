@@ -13,19 +13,33 @@ namespace Managed
     /// </summary>
     public static class PluginManagerInterop // PluginEngineInterop
     {
-        public static void AddPlugin(IntPtr thisPtr, IntPtr deletePtr, IntPtr updatePtr)
+        public static void AddPlugin(
+            IntPtr thisPtr,
+            IntPtr deletePtr,
+            IntPtr initializePtr, IntPtr buffer0,
+            IntPtr updatePtr, IntPtr buffer1)
         {
+            if(thisPtr == IntPtr.Zero) throw new Exception("thisPtr");
+            if(deletePtr == IntPtr.Zero) throw new Exception("deletePtr");
+            if(initializePtr == IntPtr.Zero) throw new Exception("initializePtr");
+            if(updatePtr == IntPtr.Zero) throw new Exception("updatePtr");
+
             var module = IntPtr.Zero; // The calling module will handle it own lifecycle.
+
+
             var delete = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
                 deletePtr,
                 typeof(UnmanagedActionMethod)
             );
-
+            var initialize = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
+                initializePtr,
+                typeof(UnmanagedActionMethod)
+            );
             var update = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
                 updatePtr,
                 typeof(UnmanagedActionMethod)
             );
-            var plugin = new UnmanagedPlugin(module, thisPtr, delete, update);
+            var plugin = new UnmanagedPlugin(module, thisPtr, delete, initialize, update);
             Singleton<PluginManager>.Instance.AddPlugin(plugin);
         }
 
@@ -43,6 +57,33 @@ namespace Managed
             var assembly = Assembly.LoadFile(filepath);
             var pluginType = GetTypesWithPluginAttribute(assembly).First();
             var plugin = (IPlugin)Activator.CreateInstance(pluginType, null);
+            if(plugin == null)
+            {
+                throw new Exception("plugin is null");
+            }
+            Singleton<PluginManager>.Instance.AddPlugin(plugin);
+        }
+
+        /// <summary>
+        /// Loads a CLR Plugin from a dll file where plugin class matches assembly name 
+        /// </summary>
+        /// <param name="name">name of the local dll file</param>
+        /// <param name="namespace">name of the class namespace</param>
+        public static void LoadCLRPluginExplicit(string name, string? namespaceName)
+        {
+            string filepath = Path.Combine(
+                //Alternative: GetEntryAssembly
+                Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                name + ".dll"
+            );
+            var assembly = Assembly.LoadFile(filepath);
+            string className = namespaceName == null ? name : namespaceName + "." + name;
+            Console.WriteLine(className);
+            var plugin = (IPlugin)assembly.CreateInstance(className, false);
+            if(plugin == null)
+            {
+                throw new Exception("plugin is null");
+            }
             Singleton<PluginManager>.Instance.AddPlugin(plugin);
         }
 
@@ -54,6 +95,11 @@ namespace Managed
         {
             var plugin = UnmanagedPlugin.CreateNativePlugin(name);
             Singleton<PluginManager>.Instance.AddPlugin(plugin);
+        }
+
+        public static void InitializePlugins()
+        {
+            Singleton<PluginManager>.Instance.Initialize();
         }
 
         public static void UpdatePlugins()
