@@ -6,6 +6,16 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
+/// <summary>
+/// Interface to a C++ pointer to member function
+/// that handles virtual calls using vTable offsetting.
+/// </summary>
+public struct PTMF
+{
+    public IntPtr FunctionPtr;
+    public IntPtr TableOffset;
+}
+
 namespace Managed
 {
     /// <summary>
@@ -16,27 +26,34 @@ namespace Managed
         public static void AddPlugin(
             IntPtr thisPtr,
             IntPtr deletePtr,
-            IntPtr initializePtr, IntPtr buffer0,
-            IntPtr updatePtr, IntPtr buffer1)
+            PTMF initializePtr,
+            PTMF updatePtr)
         {
+            //buffer needed for PTMF
+            //not neeed for FP
+
+            Console.WriteLine(thisPtr);
+            Console.WriteLine(deletePtr);
+            Console.WriteLine(initializePtr);
+            Console.WriteLine(updatePtr);
+
             if(thisPtr == IntPtr.Zero) throw new Exception("thisPtr");
             if(deletePtr == IntPtr.Zero) throw new Exception("deletePtr");
-            if(initializePtr == IntPtr.Zero) throw new Exception("initializePtr");
-            if(updatePtr == IntPtr.Zero) throw new Exception("updatePtr");
+            if(initializePtr.FunctionPtr == IntPtr.Zero) throw new Exception("initializePtr");
+            if(updatePtr.FunctionPtr == IntPtr.Zero) throw new Exception("updatePtr");
 
             var module = IntPtr.Zero; // The calling module will handle it own lifecycle.
-
 
             var delete = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
                 deletePtr,
                 typeof(UnmanagedActionMethod)
             );
             var initialize = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
-                initializePtr,
+                initializePtr.FunctionPtr,
                 typeof(UnmanagedActionMethod)
             );
             var update = (UnmanagedActionMethod)Marshal.GetDelegateForFunctionPointer(
-                updatePtr,
+                updatePtr.FunctionPtr,
                 typeof(UnmanagedActionMethod)
             );
             var plugin = new UnmanagedPlugin(module, thisPtr, delete, initialize, update);

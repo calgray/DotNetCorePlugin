@@ -81,7 +81,9 @@ int main(int /*argc*/, char* argv[])
     if(plugins)
     {
         // C++ plugin
-        clrHost.InvokeDotNetCLR<CorePlugin*, void(*)(CorePlugin*)>(
+        clrHost.InvokeDotNetCLR<
+            CorePlugin*,
+            void(*)(CorePlugin*)>(
             assemblyName,
             "Managed.PluginManagerInterop",
             "AddPlugin",
