@@ -44,7 +44,7 @@ You will get 0x80131040 error, because your assembly will get listed in Trusted 
 
 ```sh
 cd ./bin
-./SimpleCoreCLRHost /usr/share/dotnet/shared/Microsoft.NETCore.App/5.0.1/ ./Managed.dll Trivial runActionMethod
+./SimpleCoreCLRHost
 ```
 
 will print:
