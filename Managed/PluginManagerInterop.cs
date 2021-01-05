@@ -29,14 +29,6 @@ namespace Managed
             PTMF initializePtr,
             PTMF updatePtr)
         {
-            //buffer needed for PTMF
-            //not neeed for FP
-
-            Console.WriteLine(thisPtr);
-            Console.WriteLine(deletePtr);
-            Console.WriteLine(initializePtr);
-            Console.WriteLine(updatePtr);
-
             if(thisPtr == IntPtr.Zero) throw new Exception("thisPtr");
             if(deletePtr == IntPtr.Zero) throw new Exception("deletePtr");
             if(initializePtr.FunctionPtr == IntPtr.Zero) throw new Exception("initializePtr");

@@ -24,7 +24,7 @@ Then *Managed.dll* and *CoreCLRHost* will appear in bin/ directory in this repo.
 
 ## Usage
 
-`./CoreCLRHost DLL_PATH ASSEMBLY_PATH ENTRY_POINT_TYPE ENTRY_POINT_NAME`
+`./SimplePluginFramework`
 
 *DLL_PATH* - **absolute** path to coreFX/coreCLR DLL dir ( with libcoreclr.so, mscorlib.dll, and other used by program ).
 
@@ -44,12 +44,35 @@ You will get 0x80131040 error, because your assembly will get listed in Trusted 
 
 ```sh
 cd ./bin
-./SimplePluginFramework /usr/share/dotnet/shared/Microsoft.NETCore.App/5.0.1/ ./Managed.dll Trivial runActionMethod
+./SimplePluginFramework
 ```
 
 will print:
 
 ```text
-Here's C# code:
+Hello World from C#
 Value: 42
+Value: 8
+got pi: 3.14159
+got version: v1.2.3
+CorePlugin Constructor
+nPlugins : 1
+NativeDllPlugin Constructor
+nPlugins : 2
+NativeDllPlugin Constructor
+nPlugins : 3
+ManagedPlugin Constructor
+nPlugins : 4
+CorePlugin Initialize
+NativeDllPlugin Initialize
+NativeDllPlugin Initialize
+ManagedPlugin Initialize
+CorePlugin Update
+NativeDllPlugin Update
+NativeDllPlugin Update
+ManagedPlugin Update
+CorePlugin Destructor
+NativeDllPlugin Destructor
+NativeDllPlugin Destructor
+ManagedPlugin Dispose
 ```/
