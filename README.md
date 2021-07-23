@@ -20,11 +20,11 @@ mkdir -p build && cd ./build
 cmake -DCMAKE_CXX_COMPILER=g++-8  ..
 cmake --build .
 ```
-Then *Managed.dll* and *SimpleCoreCLRHost* will appear in bin/ directory in this repo.
+Then *Managed.dll* and *DotNetCoreCLRHost* will appear in bin/ directory in this repo.
 
 ## Usage
 
-`./SimpleCoreCLRHost DLL_PATH ASSEMBLY_PATH ENTRY_POINT_TYPE ENTRY_POINT_NAME`
+`./DotNetCoreCLRHost DLL_PATH ASSEMBLY_PATH ENTRY_POINT_TYPE ENTRY_POINT_NAME`
 
 *DLL_PATH* - **absolute** path to coreFX/coreCLR DLL dir ( with libcoreclr.so, mscorlib.dll, and other used by program ).
 
@@ -44,7 +44,7 @@ You will get 0x80131040 error, because your assembly will get listed in Trusted 
 
 ```sh
 cd ./bin
-./SimpleCoreCLRHost
+./DotNetCoreCLRHost
 ```
 
 will print:
